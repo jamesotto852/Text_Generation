@@ -1,0 +1,94 @@
+---
+title: "Blog Post"
+author: "James Otto"
+date: "10/22/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+```{r setup_visible, message=FALSE, warning=FALSE}
+library("tidyverse")
+library("here")
+```
+
+## Downloading Books
+
+First, we create a function which will automates the process of downloading `.txt` files from [Project Gutenberg](https://www.gutenberg.org/).
+```{r source_download_gutenberg, echo = FALSE}
+source(here("R/download_gutenberg.R"), local = knitr::knit_global())
+```
+```{r show_download_gutenberg, code=xfun::read_utf8(here::here("R/download_gutenberg.R"))}
+```
+
+Now, we download a few files:
+```{r downloading_files, eval = FALSE}
+# Frankenstein
+download_gutenberg("https://www.gutenberg.org/files/84/84-0.txt", "Merry Shelley", "Frankenstein")
+
+# Lewis Carrol's Alice in Wonderland Series
+download_gutenberg("https://www.gutenberg.org/files/11/11-0.txt", "Lewis Carrol", "Alice_in_Wonderland")
+download_gutenberg("https://www.gutenberg.org/files/12/12-0.txt", "Lewis Carrol", "Through_the_Looking_Glass")
+
+# The works of Jane Austen
+download_gutenberg("https://www.gutenberg.org/files/158/158-0.txt", "Jane Austen", "Emma")
+download_gutenberg("https://www.gutenberg.org/files/1342/1342-0.txt", "Jane Austen", "Pride_and_Prejudice")
+download_gutenberg("https://www.gutenberg.org/files/141/141-0.txt", "Jane Austen", "Mansfield_Park")
+download_gutenberg("https://www.gutenberg.org/cache/epub/105/pg105.txt", "Jane Austen", "Persuasion")
+download_gutenberg("https://www.gutenberg.org/files/121/121-0.txt", "Jane Austen", "Northanger_Abbey")
+download_gutenberg("https://www.gutenberg.org/files/161/161-0.txt", "Jane Austen", "Sense and Sensibility")
+```
+
+Below, we include the first few lines of the downloaded Frankenstein file:
+```{r printing_raw_lines, options}
+read_lines(here("Data/Gutenberg/raw/Merry Shelley/Frankenstein.txt"))[1:85]
+```
+
+***
+
+## Cleaning Books
+
+Now, we need to clean the files.
+As illustrated above, Project Gutenberg has a standardized system for marking the beginning and end of the original text.
+These are indicated by the 1st and 2nd lines containing the string `"***"`.
+There is still some metadata included in the cleaned files, for example the table of contents and chapter headings. 
+Considering the relatively small volume this takes up, we are okay with leaving it (Project Gutenberg does not standardize these across their files).
+
+Also, the data is currently stored as a character vector with elements corresponding groups of words.
+The models we will be considering data on a character level, so we need to break up the elements into individual characters.
+
+```{r source_clean_gutenberg, echo = FALSE}
+source(here("R/clean_gutenberg.R"), local = knitr::knit_global())
+```
+```{r show_clean_gutenberg, code=xfun::read_utf8(here::here("R/clean_gutenberg.R"))}
+```
+
+```{r cleaning_books, eval = FALSE}
+authors <- list.files(here("Data/Gutenberg/raw")) 
+works <- map(authors, \(x) list.files(here("Data/Gutenberg/raw", x)))
+
+walk2(authors, works, clean_gutenberg)
+```
+
+Below, we include the first few lines of the cleaned Frankenstein file:
+```{r printing_clean_lines, options}
+read_lines(file = here("Data/Gutenberg/cleaned/Merry Shelley/Frankenstein.txt"))[1:79]
+```
+
+***
+
+Now, the data is ready to be read in to memory in the form that tensorflow needs.
+
+
+
+
+
+
+
+
+
+
