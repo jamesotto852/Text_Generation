@@ -111,12 +111,7 @@ source(here("R/create_training_data.R"), local = knitr::knit_global())
 ```
 
 ```{r creating_training_data, eval = FALSE}
-walk(write_train_data, authors, 30)
-```
-
-```{r creating_training_data_adhoc_remove_this, eval = FALSE, include = FALSE}
-walk("Merry Shelley", write_train_data, 1)
-walk("Merry Shelley", write_train_data, 30, batch_min = 12)
+walk(authors, write_train_data, 30)
 ```
 
 ***
