@@ -1,4 +1,5 @@
 clean_gutenberg <- function(author, file) {
+  # Vectorize the clean_gutenberg() function
   if (length(file) > 1) return(walk(file, \(x) clean_gutenberg(author, x)))
   
   book <- read_lines(file = here("Data/Gutenberg/raw", author, file), skip_empty_rows = FALSE)
@@ -19,6 +20,5 @@ clean_gutenberg <- function(author, file) {
   if(!dir.exists(here("Data/Gutenberg/cleaned", author))) {
     dir.create(here("Data/Gutenberg/cleaned", author), recursive = TRUE)
   }
-  
   write(book, here("Data/Gutenberg/cleaned", author, file))
 }
