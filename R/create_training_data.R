@@ -54,7 +54,11 @@ make_row <- function(index, books, batch) {
 }
 
 # Create df of sequences of specified batch length
-write_seq_df <- function(batch, data) {
+write_seq_df <- function(batch, data, replace = FALSE) {
+  if (file.exists(here("Data/Training_Data", data$author, paste0("df_seq_", batch, ".csv"))) & !replace){
+    return(NULL)
+  } 
+  
   map_dfr(1:(length(data$books) - batch), make_row, data$books, batch) |>
     write_csv(here("Data/Training_Data", data$author, paste0("df_seq_", batch, ".csv")))
   
@@ -62,12 +66,12 @@ write_seq_df <- function(batch, data) {
 }
 
 # Create directory with all files necessary for training model and decoding output
-write_train_data <- function(author, batch_max, batch_min = 1) {
+write_train_data <- function(author, batch_max, batch_min = 1, replace = FALSE) {
   if(!dir.exists(here("Data/Training_Data", author))) {
     dir.create(here("Data/Training_Data", author), recursive = TRUE)
   }
   
   data <- create_training_data(author)
   saveRDS(data, here("Data/Training_Data", author, "data.RDS"))
-  walk(batch_min:batch_max, write_seq_df, data)
+  walk(batch_min:batch_max, write_seq_df, data, replace)
 }
