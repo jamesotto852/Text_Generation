@@ -1,0 +1,107 @@
+---
+title: "Text Generation 1 - Training"
+author: "James Otto"
+date: "12/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+
+```{r setup_visible, message = FALSE}
+library("tidyverse")
+library("here")
+
+library("reticulate")
+reticulate::use_condaenv("tfnew") 
+library("tensorflow")
+library("keras")
+```
+
+### A (Brief) Introduction to Neural Networks
+
+### A (Briefer) Introduction to Recurrent Neural Networks
+
+## The Data
+
+For details on the data wrangling process, see the Appendix.
+
+We have formatted the data so that it is ready to be fed into the RNNs we are going to train.
+
+```{r data}
+df_temp <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_5.csv")) 
+
+X_mat <- df_temp |>
+  select(starts_with("X")) |>
+  as.matrix()
+
+Y_mat <- df_temp |>
+  select(Y) |>
+  as.matrix()
+
+# fix off-by-one errors:
+# mildly bad, the first output node is irrelevant -- might mess up gradients
+n_target_nodes <- length(unique(df_temp$Y)) + 1
+# X_mat <- X_mat - 1
+# Y_mat <- Y_mat - 1
+
+# NN with embedding and RNN
+model <- keras_model_sequential() |>
+  layer_embedding(input_dim = n_target_nodes, output_dim = 16) |>
+  layer_simple_rnn(units = 15, activation = "relu") |>
+  layer_dense(units = n_target_nodes, activation = "softmax")
+
+summary(model)
+
+model |> compile(loss = "sparse_categorical_crossentropy", optimizer = "adam", metrics = "accuracy")
+
+model |> fit(
+    X_mat, Y_mat,
+    batch_size = 100, 
+    epochs = 1, 
+    validation_split = 0.1)
+```
+
+
+```{r temp_delete_me}
+test_string <- "test "
+
+test_mat <- strsplit(test_string, split = ".{1}")
+
+test_mat <- matrix(c("t", "e", "s", "t", " "), ncol = 5)
+
+Shelley_data <- read_rds(here("Data/Training_Data/Merry Shelley/data.RDS"))
+
+test_enc <- Shelley_data$encoder(test_mat) |>
+  matrix(ncol = 5) 
+
+for (i in 1:100) {
+  temp_X <- rev(test_enc)[1:5]
+  temp_X <- rev(temp_X)
+  temp_X <- matrix(temp_X, ncol = 5)
+  
+  probs <- predict(model, temp_X)
+  
+  # choices <- 2:(length(probs))
+  # pred <- sample(x = choices, size = 1, prob = probs[-1] / sum(probs[-1]))
+  
+  pred <- which.max(probs[-1])
+  
+  test_enc <- c(test_enc, pred)
+  
+}
+
+map_chr(test_enc, Shelley_data$decoder) |>
+  paste(collapse = "")
+
+```
+
+
+
+
+
+
