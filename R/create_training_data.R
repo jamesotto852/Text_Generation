@@ -45,12 +45,17 @@ create_training_data <- function(author) {
   )
 }
 
-# Helper function, make sequences into tibble rows
-make_row <- function(index, books, batch) {
-  lift_dl(tibble_row, .name_repair = "minimal")(
-    books[index:(index + batch)]
-  ) |>
-    `names<-`(c(paste0("X", 1:batch), "Y"))
+make_col <- function(index, books, batch) {
+  col <- tibble(x = books[index:(length(books) - (batch + 1) + index)])
+  
+  # last column is response
+  if (index <= batch) {
+    names(col) <- paste0("X", index)
+  } else {
+    names(col) <- "Y"
+  }
+  
+  col
 }
 
 # Create df of sequences of specified batch length
@@ -59,19 +64,19 @@ write_seq_df <- function(batch, data, replace = FALSE) {
     return(NULL)
   } 
   
-  map_dfr(1:(length(data$books) - batch), make_row, data$books, batch) |>
+  map_dfc(1:(batch + 1), make_col, data$books, batch) |>
     write_csv(here("Data/Training_Data", data$author, paste0("df_seq_", batch, ".csv")))
   
   NULL # Don't want to return anything -- these boots are made for walkin'
 }
 
 # Create directory with all files necessary for training model and decoding output
-write_train_data <- function(author, batch_max, batch_min = 1, replace = FALSE) {
+write_train_data <- function(author, batches, replace = FALSE) {
   if(!dir.exists(here("Data/Training_Data", author))) {
     dir.create(here("Data/Training_Data", author), recursive = TRUE)
   }
   
   data <- create_training_data(author)
   saveRDS(data, here("Data/Training_Data", author, "data.RDS"))
-  walk(batch_min:batch_max, write_seq_df, data, replace)
+  walk(batches, write_seq_df, data, replace)
 }

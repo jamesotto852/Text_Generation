@@ -386,12 +386,17 @@ create_training_data &lt;- function(author) {
   )
 }
 
-# Helper function, make sequences into tibble rows
-make_row &lt;- function(index, books, batch) {
-  lift_dl(tibble_row, .name_repair = &quot;minimal&quot;)(
-    books[index:(index + batch)]
-  ) |&gt;
-    `names&lt;-`(c(paste0(&quot;X&quot;, 1:batch), &quot;Y&quot;))
+make_col &lt;- function(index, books, batch) {
+  col &lt;- tibble(x = books[index:(length(books) - (batch + 1) + index)])
+  
+  # last column is response
+  if (index &lt;= batch) {
+    names(col) &lt;- paste0(&quot;X&quot;, index)
+  } else {
+    names(col) &lt;- &quot;Y&quot;
+  }
+  
+  col
 }
 
 # Create df of sequences of specified batch length
@@ -400,30 +405,30 @@ write_seq_df &lt;- function(batch, data, replace = FALSE) {
     return(NULL)
   } 
   
-  map_dfr(1:(length(data$books) - batch), make_row, data$books, batch) |&gt;
+  map_dfc(1:(batch + 1), make_col, data$books, batch) |&gt;
     write_csv(here(&quot;Data/Training_Data&quot;, data$author, paste0(&quot;df_seq_&quot;, batch, &quot;.csv&quot;)))
   
   NULL # Don&#39;t want to return anything -- these boots are made for walkin&#39;
 }
 
 # Create directory with all files necessary for training model and decoding output
-write_train_data &lt;- function(author, batch_max, batch_min = 1, replace = FALSE) {
+write_train_data &lt;- function(author, batches, replace = FALSE) {
   if(!dir.exists(here(&quot;Data/Training_Data&quot;, author))) {
     dir.create(here(&quot;Data/Training_Data&quot;, author), recursive = TRUE)
   }
   
   data &lt;- create_training_data(author)
   saveRDS(data, here(&quot;Data/Training_Data&quot;, author, &quot;data.RDS&quot;))
-  walk(batch_min:batch_max, write_seq_df, data, replace)
+  walk(batches, write_seq_df, data, replace)
 }</code></pre>
-<pre class="r"><code>walk(authors, write_train_data, 30)</code></pre>
+<pre class="r"><code>walk(authors, write_train_data, c(1, 5, 10, 30))</code></pre>
 <hr />
-<p>Below, we include the first few training observations corresponding to Merry Shelley corresponding to the data sets of sequences of lengths 1, 2, and 6. The first set of observations are encoded in the machine-readable format tensorflow needs. The following set are decoded, presented in a human-readable format. Notice, in each case the <span class="math inline">\(Y\)</span> column is the target – given the previous characters (<span class="math inline">\(X_i\)</span>) it is our goal to accurately predict the next character (<span class="math inline">\(Y\)</span>).</p>
+<p>Below, we include the first few training observations corresponding to Merry Shelley corresponding to the data sets of sequences of lengths 1, 5, and 10 The first set of observations are encoded in the machine-readable format tensorflow needs. The following set are decoded, presented in a human-readable format. Notice, in each case the <span class="math inline">\(Y\)</span> column is the target – given the previous characters (<span class="math inline">\(X_i\)</span>) it is our goal to accurately predict the next character (<span class="math inline">\(Y\)</span>).</p>
 <p>At this point, the data is in the format necessary to train our models, see (blog posts 1 and 2) for details on implementation and results!</p>
 <pre class="r"><code>Shelley_data &lt;- read_rds(here(&quot;Data/Training_Data/Merry Shelley/data.RDS&quot;))
 Shelley_df_seq_1 &lt;- read_csv(here(&quot;Data/Training_Data/Merry Shelley/df_seq_1.csv&quot;))
-Shelley_df_seq_2 &lt;- read_csv(here(&quot;Data/Training_Data/Merry Shelley/df_seq_2.csv&quot;))
-Shelley_df_seq_6 &lt;- read_csv(here(&quot;Data/Training_Data/Merry Shelley/df_seq_6.csv&quot;))</code></pre>
+Shelley_df_seq_5 &lt;-  read_csv(here(&quot;Data/Training_Data/Merry Shelley/df_seq_5.csv&quot;))
+Shelley_df_seq_10 &lt;-  read_csv(here(&quot;Data/Training_Data/Merry Shelley/df_seq_10.csv&quot;))</code></pre>
 <pre class="r"><code># Printing the first few encoded rows
 
 head(Shelley_df_seq_1)
@@ -437,27 +442,27 @@ head(Shelley_df_seq_1)
 ## 5    26     2
 ## 6     2     6
 
-head(Shelley_df_seq_2)
-## # A tibble: 6 × 3
-##      X1    X2     Y
-##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1    45     9     4
-## 2     9     4     6
-## 3     4     6    26
-## 4     6    26     2
-## 5    26     2     6
-## 6     2     6     8
+head(Shelley_df_seq_5)
+## # A tibble: 6 × 6
+##      X1    X2    X3    X4    X5     Y
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1    45     9     4     6    26     2
+## 2     9     4     6    26     2     6
+## 3     4     6    26     2     6     8
+## 4     6    26     2     6     8     3
+## 5    26     2     6     8     3     2
+## 6     2     6     8     3     2     7
 
-head(Shelley_df_seq_6)
-## # A tibble: 6 × 7
-##      X1    X2    X3    X4    X5    X6     Y
-##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1    45     9     4     6    26     2     6
-## 2     9     4     6    26     2     6     8
-## 3     4     6    26     2     6     8     3
-## 4     6    26     2     6     8     3     2
-## 5    26     2     6     8     3     2     7
-## 6     2     6     8     3     2     7     6</code></pre>
+head(Shelley_df_seq_10)
+## # A tibble: 6 × 11
+##      X1    X2    X3    X4    X5    X6    X7    X8    X9   X10     Y
+##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1    45     9     4     6    26     2     6     8     3     2     7
+## 2     9     4     6    26     2     6     8     3     2     7     6
+## 3     4     6    26     2     6     8     3     2     7     6    27
+## 4     6    26     2     6     8     3     2     7     6    27     1
+## 5    26     2     6     8     3     2     7     6    27     1     5
+## 6     2     6     8     3     2     7     6    27     1     5     9</code></pre>
 <pre class="r"><code># Printing the above rows, decoded
 
 head(Shelley_df_seq_1) |&gt; mutate(across(everything(), Shelley_data$decoder))
@@ -471,27 +476,27 @@ head(Shelley_df_seq_1) |&gt; mutate(across(everything(), Shelley_data$decoder))
 ## 5 k     e    
 ## 6 e     n
 
-head(Shelley_df_seq_2) |&gt; mutate(across(everything(), Shelley_data$decoder))
-## # A tibble: 6 × 3
-##   X1    X2    Y    
-##   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
-## 1 F     r     a    
-## 2 r     a     n    
-## 3 a     n     k    
-## 4 n     k     e    
-## 5 k     e     n    
-## 6 e     n     s
+head(Shelley_df_seq_5) |&gt; mutate(across(everything(), Shelley_data$decoder))
+## # A tibble: 6 × 6
+##   X1    X2    X3    X4    X5    Y    
+##   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
+## 1 F     r     a     n     k     e    
+## 2 r     a     n     k     e     n    
+## 3 a     n     k     e     n     s    
+## 4 n     k     e     n     s     t    
+## 5 k     e     n     s     t     e    
+## 6 e     n     s     t     e     i
 
-head(Shelley_df_seq_6) |&gt; mutate(across(everything(), Shelley_data$decoder))
-## # A tibble: 6 × 7
-##   X1    X2    X3    X4    X5    X6    Y    
-##   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
-## 1 F     r     a     n     k     e     n    
-## 2 r     a     n     k     e     n     s    
-## 3 a     n     k     e     n     s     t    
-## 4 n     k     e     n     s     t     e    
-## 5 k     e     n     s     t     e     i    
-## 6 e     n     s     t     e     i     n</code></pre>
+head(Shelley_df_seq_10) |&gt; mutate(across(everything(), Shelley_data$decoder))
+## # A tibble: 6 × 11
+##   X1    X2    X3    X4    X5    X6    X7    X8    X9    X10   Y    
+##   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
+## 1 F     r     a     n     k     e     n     s     &quot;t&quot;   &quot;e&quot;   &quot;i&quot;  
+## 2 r     a     n     k     e     n     s     t     &quot;e&quot;   &quot;i&quot;   &quot;n&quot;  
+## 3 a     n     k     e     n     s     t     e     &quot;i&quot;   &quot;n&quot;   &quot;;&quot;  
+## 4 n     k     e     n     s     t     e     i     &quot;n&quot;   &quot;;&quot;   &quot; &quot;  
+## 5 k     e     n     s     t     e     i     n     &quot;;&quot;   &quot; &quot;   &quot;o&quot;  
+## 6 e     n     s     t     e     i     n     ;     &quot; &quot;   &quot;o&quot;   &quot;r&quot;</code></pre>
 </div>
 
 

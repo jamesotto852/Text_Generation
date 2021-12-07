@@ -111,12 +111,12 @@ source(here("R/create_training_data.R"), local = knitr::knit_global())
 ```
 
 ```{r creating_training_data, eval = FALSE}
-walk(authors, write_train_data, 30)
+walk(authors, write_train_data, c(1, 5, 10, 30))
 ```
 
 ***
 Below, we include the first few training observations corresponding to Merry Shelley 
-corresponding to the data sets of sequences of lengths 1, 2, and 6.
+corresponding to the data sets of sequences of lengths 1, 5, and 10
 The first set of observations are encoded in the machine-readable format tensorflow needs.
 The following set are decoded, presented in a human-readable format.
 Notice, in each case the $Y$ column is the target --
@@ -128,8 +128,8 @@ see (blog posts 1 and 2) for details on implementation and results!
 ```{r printing_training_data_1, message = FALSE}
 Shelley_data <- read_rds(here("Data/Training_Data/Merry Shelley/data.RDS"))
 Shelley_df_seq_1 <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_1.csv"))
-Shelley_df_seq_2 <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_2.csv"))
-Shelley_df_seq_6 <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_6.csv"))
+Shelley_df_seq_5 <-  read_csv(here("Data/Training_Data/Merry Shelley/df_seq_5.csv"))
+Shelley_df_seq_10 <-  read_csv(here("Data/Training_Data/Merry Shelley/df_seq_10.csv"))
 ```
 
 ```{r printing_training_data_2, collapse = TRUE}
@@ -137,9 +137,9 @@ Shelley_df_seq_6 <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_6.csv
 
 head(Shelley_df_seq_1)
 
-head(Shelley_df_seq_2)
+head(Shelley_df_seq_5)
 
-head(Shelley_df_seq_6)
+head(Shelley_df_seq_10)
 ```
 
 ```{r printing_training_data_3, collapse = TRUE}
@@ -147,9 +147,9 @@ head(Shelley_df_seq_6)
 
 head(Shelley_df_seq_1) |> mutate(across(everything(), Shelley_data$decoder))
 
-head(Shelley_df_seq_2) |> mutate(across(everything(), Shelley_data$decoder))
+head(Shelley_df_seq_5) |> mutate(across(everything(), Shelley_data$decoder))
 
-head(Shelley_df_seq_6) |> mutate(across(everything(), Shelley_data$decoder))
+head(Shelley_df_seq_10) |> mutate(across(everything(), Shelley_data$decoder))
 ```
 
 
