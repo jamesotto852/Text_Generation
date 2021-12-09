@@ -1,0 +1,152 @@
+\documentclass[t]{beamer}
+\usepackage{otto_beamer}
+\usepackage{hyperref}
+\usetheme{Boadilla}
+
+
+% For figs next to eachother
+% \usepackage[demo]{graphicx}
+\usepackage{subfig}
+
+% \AtBeginSection[]{
+%   \begin{frame}
+%   \vfill
+%   \centering
+%   \begin{beamercolorbox}[sep=8pt,center,shadow=false,rounded=true]{title}
+%     \usebeamerfont{title}\insertsectionhead\par%
+%   \end{beamercolorbox}
+%   \vfill
+%   \end{frame}
+% }
+
+\addtobeamertemplate{frametitle}{
+   \let\insertframetitle\insertsectionhead}{}
+\addtobeamertemplate{frametitle}{
+   \let\insertframesubtitle\insertsubsectionhead}{}
+
+
+\makeatletter
+  \CheckCommand*\beamer@checkframetitle{\@ifnextchar\bgroup\beamer@inlineframetitle{}}
+  \renewcommand*\beamer@checkframetitle{\global\let\beamer@frametitle\relax\@ifnextchar\bgroup\beamer@inlineframetitle{}}
+\makeatother
+
+
+\begin{document}
+
+<<include = FALSE, message = FALSE>>=
+library("here")
+library("tidyverse"); theme_set(theme_bw()); theme_update(panel.grid.minor = element_blank())
+
+knitr::opts_chunk$set(
+  fig.align = 'center',
+  cache = FALSE,
+  fig.height = 3,
+  fig.env = "figure",
+  fig.pos = "h!",
+  echo = FALSE,
+  comment = "##"
+)
+@
+
+
+\title[Application of RNNs to Text Generation]{Text Generation with RNNs}
+
+\author{James Otto}
+
+\frame{\titlepage}
+
+\section{Introduction}
+\begin{frame}
+\begin{itemize}
+  \item Recurrent Neural Networks (RNNs) are networks that make one step ahead predictions based on sequential inputs
+  \item Information from previous inputs is preserved in the network's "memory" which is maintained via transferring information in hidden layers between sequential predictions
+  \item RNNs can be used to predict arbitrarily long continuations of sequences by treating predictions as new data
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+  \item We are going to consider the use of RNNs in language modeling
+  \item If we treat text as sequences of characters, we can generate text by making predictions with RNNs
+\end{itemize}
+\end{frame}
+
+\section{The Goal}
+
+\begin{frame}
+\begin{itemize}
+  \item It is a common tactic to train a network on sequences of length $k$ and pad
+  inputs with whitespace to be of length $k$ for predictions on "seeds" of arbitrary lengths
+  \begin{itemize}
+    \item We believe this may have adverse effects on a network's predictions,
+    padded seeds do not resemble training observations
+  \end{itemize}
+  \item We will train several networks, of lengths 1, 5, 10, and 30
+  and "bootstrap" prediction process
+  \begin{itemize}
+    \item This avoids the necessity of padding!
+  \end{itemize}
+  \item While we are considering the specific application of character generation,
+  the idea of bootstrapping via several models trained on sequences of increasing
+  lengths generalizes to other applications of RNNs as well
+\end{itemize}
+\end{frame}
+
+\section{The Data}
+
+\begin{frame}
+\begin{itemize}
+  \item Our data comes from Project Gutenberg, a digital library which provides public domain books in plain text
+  \item We will use several author's works:
+  \begin{itemize}
+    \item Jane Austen
+    \item Merry Shelley
+    \item Miguel de Cervantes
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\tiny
+<<Showing_Ch1>>=
+read_lines(here("Data/Gutenberg/raw/Merry Shelley/Frankenstein.txt"))[72:102]
+# read_lines(here("Data/Gutenberg/raw/Merry Shelley/Frankenstein.txt"))[1012:1040]
+# read_lines(file = here("Data/Gutenberg/cleaned/Merry Shelley/Frankenstein.txt"))[1:79]
+@
+\end{frame}
+
+\begin{frame}[fragile]
+\tiny
+<<Reading_data, message = FALSE>>=
+Shelley_data <- read_rds(here("Data/Training_Data/Merry Shelley/data.RDS"))
+Shelley_df_seq_10 <-  read_csv(here("Data/Training_Data/Merry Shelley/df_seq_10.csv"))
+
+# Finding the right index:
+# Shelley_df_seq_10[1:1000,] |>
+#   mutate(across(everything(), Shelley_data$decoder)) |>
+#   mutate(i = 1:n()) |>
+#   filter(X1 == "Y", X2 == "o", X3 == "u", X4 == " ", X5 == "w")
+@
+<<Showing_Processed_Data_1>>=
+slice(Shelley_df_seq_10, 480:489) |> mutate(across(everything(), Shelley_data$decoder))
+@
+<<Showing_Processed_Data_2>>=
+slice(Shelley_df_seq_10, 480:489)
+@
+\end{frame}
+
+
+\section{Preliminary Results (Simple RNN)}
+
+\begin{frame}
+\small
+\textbf{You will r}evenge nearly by this desorated; ce. headd never attempted to resolving not by my musulle and reponsed at a convent, or carinisy is us. Weres; a lift of infunciultasing, hapten, and my enulance for the pleasant fortenane air, deageranest, Felix apprayed to  an boing earliking place in any other remains and perceived of your patt began. “A more that half kiederes, whose species of the were in my death. Etrebzed this, he spitits and this were, erroneo for several hours not; and on the observe himself. You paused injonttly which is true the greatest events with. My rever by the hour of a soul this opened before her whose tast of some country; a seriem, and they will not resore me, and then to have changed that to my lotter began to engaged. The spprention of my misfortuness are cluelt of its melancholy hour, dress had placed remember me to laugh in my mind whech I had been the difficulty “Masine still sumper I will not rather has begine to any rosts of your mind which had started in preserve in wreck. I inhabited, except the wood; you will not lean hampines and roney from the innocent straw, she bediced her what materials of Agatha and their bither, and condemned by hall first accordingly occupied your atmest agitated in my concertion of daultle purssity and mead and happy and horror and armight of blessed here so subject, but these troubled possessing quantiby and hill with my unusa; they land; but none now with gustious occupations,
+% tearful man would be hanty me, and if re will which it dount merighaful consintence so naturn was the greatert more herighate my journey to the boat to his exceptidy in dicgaled, and quickly incompossent, weighed a man who could no rome tranquillity are sonrer that, for the frish gount by any that introrused him it you reparter acquire to the different difeicult to Henry conlidded his, but they were hes look fored, and therefore acimated by feel.” You rest appeared to detest and loved when I amss, he awelatally required in cimpler offer su
+\end{frame}
+
+
+
+
+
+
+\end{document}
