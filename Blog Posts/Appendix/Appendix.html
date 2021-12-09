@@ -336,8 +336,8 @@ walk2(authors, works, clean_gutenberg)</code></pre>
 </div>
 <div id="creating-training-data" class="section level2">
 <h2>Creating Training Data</h2>
-<p>Now, we are ready to create the training data for our tensorflow models. We need to do quite a bit of work in order to get the data in the correct form. As we will eventually be training 30 models for each author (for sequences of lengths 1 to 30), we need to create 30 different training data sets per author.</p>
-<p>Additionally, we the tensorflow models need numerical inputs – not characters. Importantly, the ordering and scale of the numerical inputs is irrelevant. All that matters is that the function mapping characters to integers is invertible. For each author, we create an encoder/decoder pair arbitrarily based on the empirical frequency distribution of characters.</p>
+<p>Now, we are ready to create the training data for our tensorflow models. We need to do quite a bit of work in order to get the data in the correct form. As we will eventually be training 4 models for each author (corresponding to sequence lengths 1, 5, 10, and 30), we need to create multiple training data sets per author.</p>
+<p>Additionally, the tensorflow models need numerical inputs – not characters. Importantly, the ordering and scale of the numerical inputs is irrelevant. All that matters is that the function mapping characters to integers is invertible. For each author, we create an encoder/decoder pair arbitrarily based on the empirical frequency distribution of characters.</p>
 <p>Below, we include the helper functions which perform these tasks – the end goal is to create a directory for each author containing the 30 different data sets; the original corpus; and the encoder and decoder functions.</p>
 <pre class="r"><code># Function factories for vectorized encoders and decoders:
 encoder_fun &lt;- function(char_table) {

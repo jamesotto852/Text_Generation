@@ -93,10 +93,10 @@ read_lines(file = here("Data/Gutenberg/cleaned/Merry Shelley/Frankenstein.txt"))
 
 Now, we are ready to create the training data for our tensorflow models.
 We need to do quite a bit of work in order to get the data in the correct form.
-As we will eventually be training 30 models for each author (for sequences of lengths 1 to 30),
-we need to create 30 different training data sets per author.
+As we will eventually be training 4 models for each author (corresponding to sequence lengths 1, 5, 10, and 30),
+we need to create multiple training data sets per author.
 
-Additionally, we the tensorflow models need numerical inputs -- not characters.
+Additionally, the tensorflow models need numerical inputs -- not characters.
 Importantly, the ordering and scale of the numerical inputs is irrelevant.
 All that matters is that the function mapping characters to integers is invertible.
 For each author, we create an encoder/decoder pair arbitrarily based on the empirical frequency distribution of characters.
