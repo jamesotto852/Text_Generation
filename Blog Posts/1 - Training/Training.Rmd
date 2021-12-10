@@ -6,18 +6,20 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.align = 'center',
+  fig.width = 8,
+  out.width = "100%")
 ```
 
 ## Introduction
 
 
 ```{r setup_visible, message = FALSE}
-library("tidyverse")
+library("tidyverse"); theme_set(theme_bw()); theme_update(panel.grid.minor = element_blank())
 library("here")
 
-library("reticulate")
-reticulate::use_condaenv("tfnew") 
 library("tensorflow")
 library("keras")
 ```
@@ -26,13 +28,17 @@ library("keras")
 
 ### A (Briefer) Introduction to Recurrent Neural Networks
 
-## The Data
+## Training a Network
 
 For details on the data wrangling process, see the Appendix.
 
 We have formatted the data so that it is ready to be fed into the RNNs we are going to train.
+Currently, we have data frames containing all sequences of lengths 1, 5, 10, and 30 for each corpus.
+Before fitting models for all corpuses and sequences, we'll walk through the process of training a RNN on sequences of length 30 from Merry Shelley's Frankenstein.
 
-```{r data}
+First, we have to do a little processing, as tensorflow expects data in the form of matrices:
+
+```{r data, message = FALSE}
 df_temp <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_5.csv")) 
 
 X_mat <- df_temp |>
@@ -43,64 +49,212 @@ Y_mat <- df_temp |>
   select(Y) |>
   as.matrix()
 
+# tensorflow starts index at 0
+X_mat <- X_mat - 1
+Y_mat <- Y_mat - 1
+```
+
+Now, we define the RNN:
+
+```{r define_network, message = FALSE}
+n_target_nodes <- length(unique(df_temp$Y)) 
+
+model <- keras_model_sequential() |>
+  layer_embedding(input_dim = n_target_nodes, output_dim = 16) |>
+  layer_simple_rnn(units = 1000, activation = "relu") |>
+  layer_dense(units = n_target_nodes, activation = "softmax")
+
+model |> compile(loss = "sparse_categorical_crossentropy", optimizer = "adam", metrics = "accuracy")
+```
+
+```{r summary_network}
+summary(model)
+```
+
+Next, we train the network:
+
+```{r training_nework_show, eval = FALSE}
+model |> fit(
+    X_mat, Y_mat,
+    batch_size = 1000, 
+    epochs = 100, 
+    validation_split = 0.1)
+```
+
+```{r training_network_hide, eval = FALSE, include = FALSE}
+history <- model |> fit(
+    X_mat, Y_mat,
+    batch_size = 1000, 
+    epochs = 3, 
+    validation_split = 0.1)
+
+write_rds(history, here("Blog Posts/1 - Training/model_examples/history.rds"))
+save_model_hdf5(model, here("Blog Posts/1 - Training/model_examples/model_5_blog_ex.h5"))
+```
+
+```{r loading_network, include = FALSE}
+history <- read_rds(here("Blog Posts/1 - Training/model_examples/history.rds"))
+model <- load_model_hdf5(here("Blog Posts/1 - Training/model_examples/model_5_blog_ex.h5"))
+```
+
+```{r history_network, echo = FALSE}
+plot(history, smooth = FALSE) + 
+  geom_line()
+```
+
+Finally, we are able to make predictions from input sequences!
+
+```{r eval_network}
+# need encoder/decoder
+Shelley_data <- read_rds(here("Data/Training_Data/Merry Shelley/data.RDS"))
+
+# Making predictions starting with seed "Frank"
+seed <- c("F", "r", "a", "n", "k") |>
+  Shelley_data$encoder() |>
+  matrix(ncol = 5) 
+
+seed <- seed - 1 # Off-by-one between R and Python
+
+for (i in 1:20) {
+  temp_X <- rev(seed)[1:5]
+  temp_X <- rev(temp_X)
+  temp_X <- matrix(temp_X, ncol = 5)
+  
+  probs <- predict(model, temp_X) |>
+    as.vector()
+  
+  choices <- 1:(length(probs))
+  pred <- sample(x = choices, size = 1, prob = probs) - 1 # Off-by-one between R and Python
+  
+  seed <- c(seed, pred)
+  
+}
+
+seed <- seed + 1 # Off-by-one between R and Python
+
+map_chr(seed, Shelley_data$decoder) |>
+  paste(collapse = "") |>
+  cat()
+
+```
+
+
+## Training all the Networks
+
+In order to train individual networks for each combination of author and sequences of length 1, 5, 10, and 30
+we need to make some concessions (it is unfeasible to optimize hyperparameters).
+We train every network for XXX epochs, without considering validation loss.
+Additionally, we construct each network with the same structure.
+This is likely suboptimal and would be an interesting choice to investigate, the networks with input dimension 1 likely need to have a different structure than those with input dimension 30.
+
+We train the networks programmatically, mapping across each data set.
+Notice this is the same code as the previous example, just slightly generalized.
+
+
+
+
+
+
+
+
+
+
+```{r temp, eval = FALSE, include = FALSE}
+df_temp <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_30.csv")) 
+df_temp <- read_csv(here("Data/Training_Data/Jane Austen/df_seq_30.csv")) 
+
+X_mat <- df_temp |>
+  select(starts_with("X")) |> as.matrix()
+
+Y_mat <- df_temp |>
+  select(Y) |>
+  as.matrix()
+
+n_target_nodes <- length(unique(df_temp$Y)) 
+
 # fix off-by-one errors:
-# mildly bad, the first output node is irrelevant -- might mess up gradients
-n_target_nodes <- length(unique(df_temp$Y)) + 1
-# X_mat <- X_mat - 1
-# Y_mat <- Y_mat - 1
+X_mat <- X_mat - 1
+Y_mat <- Y_mat - 1
 
 # NN with embedding and RNN
 model <- keras_model_sequential() |>
   layer_embedding(input_dim = n_target_nodes, output_dim = 16) |>
-  layer_simple_rnn(units = 15, activation = "relu") |>
+  layer_simple_rnn(units = 1000, activation = "relu") |>
+  # layer_dense(units = 100, activation = "relu") |>
   layer_dense(units = n_target_nodes, activation = "softmax")
 
 summary(model)
+
+# Check this out:
+# https://tensorflow.rstudio.com/tutorials/advanced/distributed/distributed_training_with_keras/
 
 model |> compile(loss = "sparse_categorical_crossentropy", optimizer = "adam", metrics = "accuracy")
 
 model |> fit(
     X_mat, Y_mat,
-    batch_size = 100, 
-    epochs = 1, 
+    batch_size = 1000, 
+    epochs = 100, 
     validation_split = 0.1)
-```
+
+# save_model_hdf5(model, here("Models/Merry Shelley/temp_model.h5"))
+# save_model_hdf5(model, here("Models/Jane Austen/temp_model.h5"))
 
 
-```{r temp_delete_me}
-test_string <- "test "
 
-test_mat <- strsplit(test_string, split = ".{1}")
 
-test_mat <- matrix(c("t", "e", "s", "t", " "), ncol = 5)
+model <- load_model_hdf5(here("Models/Merry Shelley/temp_model.h5"))
 
 Shelley_data <- read_rds(here("Data/Training_Data/Merry Shelley/data.RDS"))
+# Shelley_data <- read_rds(here("Data/Training_Data/Jane Austen/data.RDS"))
 
-test_enc <- Shelley_data$encoder(test_mat) |>
-  matrix(ncol = 5) 
+# test_mat <- "We know the meaning of life is" |>
+# test_mat <- "        The meaning of life is" |>
+test_mat <- "                   You will re" |>
+# test_mat <- "                           The" |>
+  str_extract_all(".") |>
+  unlist()
 
-for (i in 1:100) {
-  temp_X <- rev(test_enc)[1:5]
+test_enc <- Shelley_data$encoder(test_mat) - 1
+test_enc <- matrix(test_enc, ncol = 30) 
+
+# test_enc <- X_mat[480,]
+# test_enc <- X_mat[15001,]
+# test_enc <- X_mat[15116,]
+
+
+for (i in 1:2000) {
+  temp_X <- rev(test_enc)[1:100]
   temp_X <- rev(temp_X)
-  temp_X <- matrix(temp_X, ncol = 5)
+  temp_X <- matrix(temp_X, ncol = 100)
   
-  probs <- predict(model, temp_X)
+  probs <- predict(model, temp_X) |>
+    as.vector()
   
-  # choices <- 2:(length(probs))
-  # pred <- sample(x = choices, size = 1, prob = probs[-1] / sum(probs[-1]))
+  choices <- 1:(length(probs))
+  pred <- sample(x = choices, size = 1, prob = probs) - 1
   
-  pred <- which.max(probs[-1])
+  # pred <- which.max(probs) - 1
   
   test_enc <- c(test_enc, pred)
   
 }
 
+test_enc <- test_enc + 1
+
 map_chr(test_enc, Shelley_data$decoder) |>
-  paste(collapse = "")
+  paste(collapse = "") |>
+  str_extract("\\S.*$") |>
+  cat()
+
+map_chr(X_mat[15116,] + 1, Shelley_data$decoder) |>
+  paste(collapse = "") |>
+  cat()
+
+map_chr(X_mat[15001,] + 1, Shelley_data$decoder) |>
+  paste(collapse = "") |>
+  cat()
 
 ```
-
-
 
 
 
