@@ -5,18 +5,5 @@
 
 Data
 
-*.log
-.gz
-*concordance.tex
-*synctex.gz
-*.bcf
-*.bbl
-*.dvi
-*.nav
-*.xml
-*.snm
-*.toc
-*.vrb
-
-cache
-figure
+.rds
+.h5
