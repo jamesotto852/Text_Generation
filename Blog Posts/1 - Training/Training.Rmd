@@ -39,13 +39,13 @@ Before fitting models for all corpuses and sequences, we'll walk through the pro
 First, we have to do a little processing, as tensorflow expects data in the form of matrices:
 
 ```{r data, message = FALSE}
-df_temp <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_5.csv")) 
+df <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_5.csv")) 
 
-X_mat <- df_temp |>
+X_mat <- df |>
   select(starts_with("X")) |>
   as.matrix()
 
-Y_mat <- df_temp |>
+Y_mat <- df |>
   select(Y) |>
   as.matrix()
 
@@ -57,7 +57,7 @@ Y_mat <- Y_mat - 1
 Now, we define the RNN:
 
 ```{r define_network, message = FALSE}
-n_target_nodes <- length(unique(df_temp$Y)) 
+n_target_nodes <- length(unique(df$Y)) 
 
 model <- keras_model_sequential() |>
   layer_embedding(input_dim = n_target_nodes, output_dim = 16) |>
@@ -85,7 +85,7 @@ model |> fit(
 history <- model |> fit(
     X_mat, Y_mat,
     batch_size = 1000, 
-    epochs = 3, 
+    epochs = 100, 
     validation_split = 0.1)
 
 write_rds(history, here("Blog Posts/1 - Training/model_examples/history.rds"))
@@ -115,7 +115,7 @@ seed <- c("F", "r", "a", "n", "k") |>
 
 seed <- seed - 1 # Off-by-one between R and Python
 
-for (i in 1:20) {
+for (i in 1:1000) {
   temp_X <- rev(seed)[1:5]
   temp_X <- rev(temp_X)
   temp_X <- matrix(temp_X, ncol = 5)
