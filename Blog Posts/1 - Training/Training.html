@@ -266,12 +266,56 @@ seed &lt;- seed + 1 # Off-by-one between R and Python
 map_chr(seed, Shelley_data$decoder) |&gt;
   paste(collapse = &quot;&quot;) |&gt;
   cat()</code></pre>
-<pre><code>## Frankenstein—more, thus care and seems since, what cannot by the disting shut our innocent and magnificent, but by a curiasmy place, proceed the pign. I will or most femining permits were for truth. Those eye read animate last night of a guise I endured then before, to my spirits would perceive town of a discover the heart touch the son which I had dissipate me and if indignations, conductors. My eyeucefatigued her city, and me; they element. The appeared to shake of my unhappiness, and ceiled; but I was bounds rang in vain; I shall but as the impercain.” “These me to best hope it reflections, I fear and years, unseen the dæmons of my neck and if I was bounds; I should only bay loved careless and every subding her owe consecrated with painful attention enough the promise worked snowy mountains, whose in herch. She had come on boast that you had sufficient, and he entirely repay your walked on the waves, or the affability and I commencing and anguished heart recesses; my loud for which I bel</code></pre>
+<pre><code>## Frankenstein. You were vading me of Ireland I demand appear less the short time, for him and wretched unwillire is situation were visit you will dimf. I lovely Arabian now shut insurmoun squalities in daily left him, and hope, nothings before, I gave possible while it to me. Sometimes shaping the heavy her elerable in the other! Who concerne away unfin the remnants to light, and roby their love, I turn the veil, and avened as they were True, if the said, in the familiar can conditions, would gaief and Agatha, and signs which he unfaor, in rather the than that the approaching that I have rests, if thyself at an exploded systems, miniately that I collect, and my had not to you feel my labours of life around; I had began to death of Justine died on on a beaming course, have history. And comlection of Hanrmented with the information. Shall busied human more, the budy from him and sea, or excess capable law follow a boat, and church of the true, for vain, phomen went of my nature had before, alt</code></pre>
 </div>
 <div id="training-all-the-networks" class="section level2">
 <h2>Training all the Networks</h2>
 <p>In order to train individual networks for each combination of author and sequences of length 1, 5, 10, and 30 we need to make some concessions (it is unfeasible to optimize hyperparameters). We train every network for XXX epochs, without considering validation loss. Additionally, we construct each network with the same structure. This is likely suboptimal and would be an interesting choice to investigate, the networks with input dimension 1 likely need to have a different structure than those with input dimension 30.</p>
 <p>We train the networks programmatically, mapping across each data set. Notice this is the same code as the previous example, just slightly generalized.</p>
+<pre class="r"><code>fit_model &lt;- function(author, k) {
+  df &lt;- read_csv(here(&quot;Data/Training_Data&quot;, author, paste0(&quot;df_seq_&quot;, k, &quot;.csv&quot;)))
+
+  X_mat &lt;- df |&gt;
+    select(starts_with(&quot;X&quot;)) |&gt;
+    as.matrix()
+  
+  Y_mat &lt;- df |&gt;
+    select(Y) |&gt;
+    as.matrix()
+  
+  n_target_nodes &lt;- length(unique(df$Y)) 
+
+  # fix off-by-one errors:
+  X_mat &lt;- X_mat - 1
+  Y_mat &lt;- Y_mat - 1
+
+  # NN with embedding and RNN
+  model &lt;- keras_model_sequential() |&gt;
+    layer_embedding(input_dim = n_target_nodes, output_dim = 16) |&gt;
+    layer_simple_rnn(units = 1000, activation = &quot;relu&quot;) |&gt;
+    # layer_dense(units = 100, activation = &quot;relu&quot;) |&gt;
+    layer_dense(units = n_target_nodes, activation = &quot;softmax&quot;)
+
+  model |&gt; compile(loss = &quot;sparse_categorical_crossentropy&quot;, optimizer = &quot;adam&quot;, metrics = &quot;accuracy&quot;)
+
+  model |&gt; fit(
+      X_mat, Y_mat,
+      batch_size = 1000, 
+      epochs = 1)
+  
+  if(!dir.exists(here(&quot;Models&quot;, author))) {
+    dir.create(here(&quot;Models&quot;, author), recursive = TRUE)
+  }
+  
+  save_model_hdf5(model, here(&quot;Models&quot;, author, paste0(&quot;model_&quot;, k, &quot;.h5&quot;)))
+  
+  NULL
+}</code></pre>
+<pre class="r"><code>expand_grid(
+  author = list.files(here(&quot;Data/Gutenberg/raw&quot;)),
+  k = c(1, 5, 10, 30) 
+) |&gt;
+  pwalk(fit_model)</code></pre>
 </div>
 
 

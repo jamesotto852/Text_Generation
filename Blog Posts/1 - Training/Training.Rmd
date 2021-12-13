@@ -143,65 +143,34 @@ map_chr(seed, Shelley_data$decoder) |>
 
 In order to train individual networks for each combination of author and sequences of length 1, 5, 10, and 30
 we need to make some concessions (it is unfeasible to optimize hyperparameters).
-We train every network for XXX epochs, without considering validation loss.
-Additionally, we construct each network with the same structure.
+We construct each network with the same structure.
 This is likely suboptimal and would be an interesting choice to investigate, the networks with input dimension 1 likely need to have a different structure than those with input dimension 30.
+We also use the default learning rate of .001 and do not implement any kind of regularization (i.e. dropout).
+
+However, we did train a model on input sequences of length 30 to determine an appropriate number of epochs for the more complicated networks.
+We have included the resulting plot below, see that it takes longer for the model to learn than it did when $k = 5$.
 
 We train the networks programmatically, mapping across each data set.
 Notice this is the same code as the previous example, just slightly generalized.
 
+```{r source_create_training_data, echo = FALSE}
+source(here("R/fit_model.R"), local = knitr::knit_global())
+```
+```{r show_create_training_data, code=xfun::read_utf8(here::here("R/fit_model.R"))}
+```
 
-
-
-
-
-
+```{r creating_training_data, eval = FALSE}
+expand_grid(
+  author = list.files(here("Data/Gutenberg/raw")),
+  k = c(1, 5, 10, 30) 
+) |>
+  mutate(n_epochs = ifelse(k == 30, 40, 5)) |>
+  pwalk(fit_model)
+```
 
 
 
 ```{r temp, eval = FALSE, include = FALSE}
-df_temp <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_30.csv")) 
-df_temp <- read_csv(here("Data/Training_Data/Jane Austen/df_seq_30.csv")) 
-
-X_mat <- df_temp |>
-  select(starts_with("X")) |> as.matrix()
-
-Y_mat <- df_temp |>
-  select(Y) |>
-  as.matrix()
-
-n_target_nodes <- length(unique(df_temp$Y)) 
-
-# fix off-by-one errors:
-X_mat <- X_mat - 1
-Y_mat <- Y_mat - 1
-
-# NN with embedding and RNN
-model <- keras_model_sequential() |>
-  layer_embedding(input_dim = n_target_nodes, output_dim = 16) |>
-  layer_simple_rnn(units = 1000, activation = "relu") |>
-  # layer_dense(units = 100, activation = "relu") |>
-  layer_dense(units = n_target_nodes, activation = "softmax")
-
-summary(model)
-
-# Check this out:
-# https://tensorflow.rstudio.com/tutorials/advanced/distributed/distributed_training_with_keras/
-
-model |> compile(loss = "sparse_categorical_crossentropy", optimizer = "adam", metrics = "accuracy")
-
-model |> fit(
-    X_mat, Y_mat,
-    batch_size = 1000, 
-    epochs = 100, 
-    validation_split = 0.1)
-
-# save_model_hdf5(model, here("Models/Merry Shelley/temp_model.h5"))
-# save_model_hdf5(model, here("Models/Jane Austen/temp_model.h5"))
-
-
-
-
 model <- load_model_hdf5(here("Models/Merry Shelley/temp_model.h5"))
 
 Shelley_data <- read_rds(here("Data/Training_Data/Merry Shelley/data.RDS"))
