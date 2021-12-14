@@ -1,0 +1,102 @@
+---
+title: "Text Generation 2 - Making Predictions"
+author: "James Otto"
+date: "12/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.align = 'center',
+  fig.width = 8,
+  out.width = "100%")
+```
+
+## Introduction
+
+This is the second post in a series on generating text with recurrent neural networks (RNNs).
+In the previous post, we trained asoldfjal
+
+```{r setup_visible, message = FALSE}
+library("tidyverse"); theme_set(theme_bw()); theme_update(panel.grid.minor = element_blank())
+library("here")
+
+library("tensorflow")
+library("keras")
+```
+
+```{r start_tensorflow, message = FALSE, include = FALSE}
+# Incur the tensorflow start up message before we get to other chunks
+tf$constant(1)
+```
+
+
+## Making predictions
+
+First, we include code to create predictions.
+Allows for both bootrapped and traditional style predictions, 
+padding input seeds with whitespace and using the network trained on sequences of length 30.
+
+```{r source_create_training_data, echo = FALSE}
+source(here("R/run_model.R"), local = knitr::knit_global())
+```
+```{r show_create_training_data, code=xfun::read_utf8(here::here("R/run_model.R"))}
+```
+
+### Comparing standard and bootstrapped models
+
+First, we compare the output of the standard and bootstrap methods of predictions.
+While neither model is perfect, subjectively it seems that the bootstrap 
+
+```{r creating_training_data, cache = TRUE, comment = ""}
+set.seed(1)
+
+map(1:10, \(.) run_model("A", "Merry Shelley", 100, bootstrap = TRUE)) |>
+  walk2(1:10, \(pred, i) cat(i, ": ", pred, "\n\n", sep = ""))
+  
+map(1:10, \(.) run_model("A", "Merry Shelley", 100, bootstrap = FALSE)) |>
+  walk2(1:10, \(pred, i) cat(i, ": ", pred, "\n\n", sep = ""))
+```
+
+
+### Comparing models trained on different authors
+
+```{r comparing_author_outputs, cache = TRUE, comment = ""}
+authors <- list.files(here("Data/Training_Data"))
+
+set.seed(1)
+results <- map(authors, run_model, seed = "I", steps = 1000) |>
+  (\(x) tibble(output = x))() |>
+  mutate(author = authors) |>
+  mutate(output = str_replace_all(output, "\\s+", " "))
+  
+# names(results) <- authors
+print_results <- function(output, author) {
+  cat(author, ":\n", output, "\n\n", sep = "")
+}
+
+pwalk(results, print_results)
+```
+
+## Final thoughts
+
+Padding inputs with whitespace does seem to have a negative effect on a model's predictions.
+The method of using several models trained on sequences of increasing lengths seems to outperform this standard method.
+We arbitrarily chose to train models on sequences of length $k = 1, 5, 10, 30$.
+These values were arbitrary, it is likely that performance could be increased with tuning of this hyperparameter.
+
+A challenge in this analysis was the lack of objective measures of quality. 
+When comparing the two proposed methods we had to resort to subjective judgements,
+comparing the output using our expectations
+
+
+
+
+
+
+
+
+
+
+

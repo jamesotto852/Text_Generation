@@ -49,35 +49,3 @@ run_model <- function(seed, author, steps = 250, bootstrap = TRUE) {
 }
 
 
-run_model("Frankenstein", "Merry Shelley", 10, bootstrap = FALSE)
-run_model("Frankenstein", "Merry Shelley", 10, bootstrap = TRUE)
-run_model("Frankenstein", "Merry Shelley", 50, bootstrap = FALSE)
-run_model("Frankenstein", "Merry Shelley", 50, bootstrap = TRUE)
-run_model("Frankenstein", "Merry Shelley", 100, bootstrap = FALSE)
-run_model("Frankenstein", "Merry Shelley", 100, bootstrap = TRUE)
-run_model("Frankenstein", "Merry Shelley", 1000, bootstrap = TRUE)
-run_model("Frankenstein", "Merry Shelley", 1000, bootstrap = FALSE)
-
-# It does seem like the non-bootstrap model struggles at the start
-set.seed(1)
-run_model("Frankenstein", "Merry Shelley", 100, bootstrap = TRUE)
-run_model("Frankenstein", "Merry Shelley", 100, bootstrap = FALSE)
-
-set.seed(1)
-run_model("A", "Merry Shelley", 100, bootstrap = TRUE)
-run_model("A", "Merry Shelley", 100, bootstrap = FALSE)
-
-set.seed(1)
-run_model("Frankenstein", "Merry Shelley", 500, bootstrap = TRUE)
-run_model("Frankenstein", "Merry Shelley", 500, bootstrap = FALSE)
-
-# 8 epoch output:
-# "Frankensteins monster wascing miget, but lithles, I was lokt tometakn of the wood of might compased theirfk 
-# farigled to acco, them, bean, and my materrepaid, that country. I stone. Now amasprede hively the fext on they in; 
-# understant sad expleded buincered!_ Chapter 2n cersed of the bittlrive dayscersant his collinedy, ‘of convicted to happiness. 
-# I aghirly. She wo chingle progaced that I mappected. If ipparmation fars of arvoured same, the mack to thes of a couctry I had condecned. 
-# Deered, they returning I gould coons monnts vistom.” there of cheeced. She was hoaruagly beeatien of whith had precepve and sade us 
-# if enlowed which ly shis, Clerstarching Vittor, appeared this encmuricable id. The lyought conceent lemint and calmen. 
-# He is husistirely and pleasons which fave the youth of the fiefes me to relieving hen dount of ly the rave towards, 
-# devated the cours of the viccur. How very ridd I strubled had recoingres. That I had connequenced the atconcemed aptrigitad my mand fictety.” 
-# As he had not hide among aich"
