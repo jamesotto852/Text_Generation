@@ -44,12 +44,15 @@ run_model <- function(seed, author, steps = 250, bootstrap = TRUE) {
   seed <- seed + 1 # Off-by-one between R and Python
   
   map_chr(seed, data$decoder) |>
-    paste(collapse = "")
+    paste(collapse = "") |>
+    str_remove("^\\s*(?=\\S)")
 }
 
 
 run_model("Frankensteins monster was", "Merry Shelley", 100, bootstrap = FALSE)
-run_model("Frankensteins monster was", "Merry Shelley", 1000, bootstrap = TRUE)
+run_model("Frankensteins monster was", "Merry Shelley", 100, bootstrap = TRUE)
+run_model("Frankenstein", "Merry Shelley", 1000, bootstrap = TRUE)
+run_model("Frankenstein", "Merry Shelley", 1000, bootstrap = FALSE)
 
 # 8 epoch output:
 # "Frankensteins monster wascing miget, but lithles, I was lokt tometakn of the wood of might compased theirfk 
