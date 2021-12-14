@@ -49,10 +49,27 @@ run_model <- function(seed, author, steps = 250, bootstrap = TRUE) {
 }
 
 
-run_model("Frankensteins monster was", "Merry Shelley", 100, bootstrap = FALSE)
-run_model("Frankensteins monster was", "Merry Shelley", 100, bootstrap = TRUE)
+run_model("Frankenstein", "Merry Shelley", 10, bootstrap = FALSE)
+run_model("Frankenstein", "Merry Shelley", 10, bootstrap = TRUE)
+run_model("Frankenstein", "Merry Shelley", 50, bootstrap = FALSE)
+run_model("Frankenstein", "Merry Shelley", 50, bootstrap = TRUE)
+run_model("Frankenstein", "Merry Shelley", 100, bootstrap = FALSE)
+run_model("Frankenstein", "Merry Shelley", 100, bootstrap = TRUE)
 run_model("Frankenstein", "Merry Shelley", 1000, bootstrap = TRUE)
 run_model("Frankenstein", "Merry Shelley", 1000, bootstrap = FALSE)
+
+# It does seem like the non-bootstrap model struggles at the start
+set.seed(1)
+run_model("Frankenstein", "Merry Shelley", 100, bootstrap = TRUE)
+run_model("Frankenstein", "Merry Shelley", 100, bootstrap = FALSE)
+
+set.seed(1)
+run_model("A", "Merry Shelley", 100, bootstrap = TRUE)
+run_model("A", "Merry Shelley", 100, bootstrap = FALSE)
+
+set.seed(1)
+run_model("Frankenstein", "Merry Shelley", 500, bootstrap = TRUE)
+run_model("Frankenstein", "Merry Shelley", 500, bootstrap = FALSE)
 
 # 8 epoch output:
 # "Frankensteins monster wascing miget, but lithles, I was lokt tometakn of the wood of might compased theirfk 
