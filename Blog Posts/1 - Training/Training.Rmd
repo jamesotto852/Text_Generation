@@ -34,9 +34,9 @@ For details on the data wrangling process, see the Appendix.
 
 We have formatted the data so that it is ready to be fed into the RNNs we are going to train.
 Currently, we have data frames containing all sequences of lengths 1, 5, 10, and 30 for each corpus.
-Before fitting models for all corpuses and sequences, we'll walk through the process of training a RNN on sequences of length 30 from Merry Shelley's Frankenstein.
+Before fitting models for all corpuses and sequences, we'll walk through the process of training a RNN on sequences of length 5 from Merry Shelley's Frankenstein.
 
-First, we have to do a little processing, as tensorflow expects data in the form of matrices:
+First, we have to do a little processing as keras expects data in the form of matrices:
 
 ```{r data, message = FALSE}
 df <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_5.csv")) 
@@ -61,7 +61,6 @@ n_target_nodes <- length(unique(df$Y))
 
 model <- keras_model_sequential() |>
   layer_embedding(input_dim = n_target_nodes, output_dim = 16) |>
-  # layer_lstm(units = 1000, activation = "tanh") |>
   layer_simple_rnn(units = 1000, activation = "relu") |>
   layer_dense(units = n_target_nodes, activation = "softmax")
 
@@ -107,10 +106,13 @@ Although it appears that the optimal number of epochs to train is near 6,
 we found that training on a larger number (around 40) yielded better generated text.
 We are not sure why this is the case, we believe it might be due to the fact that accuracy and cross entropy loss
 are poor metrics of success for these models.
+It is also possible that mild overfitting is necessary to produce coherent output.
 
 Finally, we are able to make predictions from input sequences!
 
 ```{r eval_network}
+set.seed(1)
+
 # need encoder/decoder
 Shelley_data <- read_rds(here("Data/Training_Data/Merry Shelley/data.RDS"))
 
@@ -122,11 +124,11 @@ seed <- c("F", "r", "a", "n", "k") |>
 seed <- seed - 1 # Off-by-one between R and Python
 
 for (i in 1:1000) {
-  temp_X <- rev(seed)[1:5]
-  temp_X <- rev(temp_X)
-  temp_X <- matrix(temp_X, ncol = 5)
+  X <- rev(seed)[1:5]
+  X <- rev(X)
+  X <- matrix(X, ncol = 5)
   
-  probs <- predict(model, temp_X) |>
+  probs <- predict(model, X) |>
     as.vector()
   
   choices <- 1:(length(probs))
@@ -148,14 +150,14 @@ map_chr(seed, Shelley_data$decoder) |>
 ## Training all the Networks
 
 In order to train individual networks for each combination of author and sequences of length 1, 5, 10, and 30
-we need to make some concessions (it is unfeasible to optimize hyperparameters).
-We train each network for 40 epochs, subjectively this number seemed to produce high quality predictions (regardless of the validation accuracy/loss).
+we need to make some concessions -- it is unfeasible to optimize hyperparameters for each network.
+We train each network for 40 epochs, as we mentioned earlier this number seems to produce the best predictions regardless of the validation accuracy and loss.
 <!-- We train each network for 8 epochs. -->
 <!-- While this seems inappropriate, we spot checked several author and sequence length combinations -->
 <!-- and for each it seemed that the training and validation error diverged after around 8 epochs of training. -->
-We also construct each network with the same structure.
-This is likely suboptimal and would be an interesting choice to investigate, the networks with input dimension 1 likely need to have a different number of nodes in the hidden RNN layer than those with input dimension 30.
-We also use the default learning rate of .001, batch sizes of 1000, and do not implement any kind of regularization (i.e. dropout).
+We also chose to construct each network with the same structure.
+This is certainly suboptimal and would be an interesting choice to investigate, the networks with input dimension 1 surely need to have a different number of nodes in the hidden RNN layer than those with input dimension 30.
+We also use the default learning rate of .001, batch sizes of 1000, and do not implement any kind of regularization (e.g. dropout).
 
 ```{r data_30, include = FALSE, eval = FALSE}
 df <- read_csv(here("Data/Training_Data/Jane Austen/df_seq_30.csv")) 
@@ -198,8 +200,8 @@ plot(history, smooth = FALSE) +
   geom_line()
 ```
 
-We train the networks programmatically, mapping across each data set.
-Notice this is the same code as the previous example, just slightly generalized.
+We train the networks programmatically, mapping across the data sets.
+Notice this is the same code as before, just slightly more general.
 
 ```{r source_create_training_data, echo = FALSE}
 source(here("R/fit_model.R"), local = knitr::knit_global())
@@ -208,11 +210,12 @@ source(here("R/fit_model.R"), local = knitr::knit_global())
 ```
 
 ```{r creating_training_data, eval = FALSE}
-expand_grid(
-  author = list.files(here("Data/Gutenberg/raw")),
-  k = c(1, 5, 10, 30) 
-) |>
+expand_grid(author = list.files(here("Data/Gutenberg/raw")), k = c(1, 5, 10, 30)) |>
   mutate(n_epochs = 40) |>
   pwalk(fit_model)
 ```
+
+Now that all of the networks are trained, we are able to evaluate their predictions.
+See (blog post 2) for our results.
+
 
