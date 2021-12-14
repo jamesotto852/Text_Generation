@@ -103,6 +103,11 @@ plot(history, smooth = FALSE) +
   geom_line()
 ```
 
+Although it appears that the optimal number of epochs to train is near 6, 
+we found that training on a larger number (around 40) yielded better generated text.
+We are not sure why this is the case, we believe it might be due to the fact that accuracy and cross entropy loss
+are poor metrics of success for these models.
+
 Finally, we are able to make predictions from input sequences!
 
 ```{r eval_network}
@@ -144,9 +149,10 @@ map_chr(seed, Shelley_data$decoder) |>
 
 In order to train individual networks for each combination of author and sequences of length 1, 5, 10, and 30
 we need to make some concessions (it is unfeasible to optimize hyperparameters).
-We train each network for 8 epochs.
-While this seems inappropriate, we spot checked several author and sequence length combinations
-and for each it seemed that the training and validation error diverged after around 8 epochs of training.
+We train each network for 40 epochs, subjectively this number seemed to produce high quality predictions (regardless of the validation accuracy/loss).
+<!-- We train each network for 8 epochs. -->
+<!-- While this seems inappropriate, we spot checked several author and sequence length combinations -->
+<!-- and for each it seemed that the training and validation error diverged after around 8 epochs of training. -->
 We also construct each network with the same structure.
 This is likely suboptimal and would be an interesting choice to investigate, the networks with input dimension 1 likely need to have a different number of nodes in the hidden RNN layer than those with input dimension 30.
 We also use the default learning rate of .001, batch sizes of 1000, and do not implement any kind of regularization (i.e. dropout).
@@ -206,11 +212,9 @@ expand_grid(
   author = list.files(here("Data/Gutenberg/raw")),
   k = c(1, 5, 10, 30) 
 ) |>
-  mutate(n_epochs = 8) |>
+  mutate(n_epochs = 40) |>
   pwalk(fit_model)
 ```
-
-
 
 ```{r temp, eval = FALSE, include = FALSE}
 model <- load_model_hdf5(here("Models/Merry Shelley/temp_model.h5"))
