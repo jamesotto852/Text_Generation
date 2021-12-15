@@ -2,7 +2,9 @@
 title: "Text Generation 1 - Training"
 author: "James Otto"
 date: "12/7/2021"
-output: html_document
+output:
+  html_document:
+    fig_caption: false
 ---
 
 ```{r setup, include=FALSE}
@@ -15,6 +17,13 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
+This is the first post in a series on generating text with recurrent neural networks (RNNs).
+We will be using the [R interface to Keras](https://keras.rstudio.com/) for training and making predictions with our models.
+All of the code to reproduce this analysis has been echoed and is also available on [my Github](https://github.com/jamesotto852/Text_Generation).
+
+***
+
+First, we load several `R` packages necessary for our analysis:
 
 ```{r setup_visible, message = FALSE}
 library("tidyverse"); theme_set(theme_bw()); theme_update(panel.grid.minor = element_blank())
@@ -24,21 +33,73 @@ library("tensorflow")
 library("keras")
 ```
 
+***
+
 ### A (Brief) Introduction to Neural Networks
 
+Neural networks are powerful models which are capable of expressing highly non-linear relationships.
+This is accomplished via the composition of linear functions and non-linear activation functions.
+Typically, observations of $p$ variables are taken as input, mapped through "hidden layers",
+and ultimately transformed to predict some response.
+This is illustrated in the graphic below, reproduced from [Wikipedia](https://en.wikipedia.org/wiki/Artificial_neural_network):
+
+<center>
+
+![Diagram of a simple neural network](figures/network_diagram.png){width=33%}
+
+</center>
+
+The details of how neural networks work is beyond the scope of this post, but there are many high quality resources available online.
+[Deep Learning](https://www.deeplearningbook.org/) by Ian Goodfellow, Yoshua Bengio, and Aaron Courville is a great place to start.
+
 ### A (Briefer) Introduction to Recurrent Neural Networks
+
+Recurrent neural networks (RNNs) are a special case of neural networks where information is 
+preserved between predictions.
+RNNs make one step ahead predictions based on sequential inputs (analogous to time series data).
+Information from previous inputs is preserved in the network's "memory" which is maintained via the transfer of information between hidden layers along sequential predictions.
+<!-- RNNs can be used to predict arbitrarily long continuations of sequences by treating predictions as new data. -->
+
+Again, this post will not go into the details of RNNs. But, the text referenced above contains a thorough treatment of the subject.
+
+***
+
+### Our Goal
+
+We are going to be considering the use of RNNs in language modeling.
+If we treat text as sequences of characters, we can generate new text by making predictions with RNNs.
+By feeding in sequences of characters of some fixed length, we can train a network to predict the next character --
+essentially teaching it how to type.
+
+It is a common tactic to train RNNs on sequences of length $k$ 
+and pad new input with whitespace to be of length $k$ to ensure compatibility with the model.
+This allows us to make predictions on "seeds" of arbitrary lengths.
+We believe this may have adverse effects on a network's predictions,
+padded seeds do not resemble training observations.
+We will train several networks, of lengths 1, 5, 10, and 30
+and "bootstrap" the prediction process.
+
+For example, if we wanted to make predictions based on the input "seed" `"A"`,
+we would use the RNN trained on sequences of length 1 to predict the first four characters: `"A____"`.
+We would then switch to the RNN trained on sequences of length 5 to predict the following 5 characters,
+at which point we would switch to the network trained on sequences of length 10.
+Once the sequence reaches a length of 30, we can switch to the final network trained on inputs of length 30.
+This procedure can generate predictions from input seeds of arbitrary lengths without padding!
+
+While we are considering the specific application of character generation,
+the idea of making predictions using several models trained on sequences of increasing
+lengths generalizes to other applications of RNNs as well
 
 ***
 
 ## Training a Network
 
-For details on the data wrangling process, see the Appendix.
-
 We have formatted the data so that it is ready to be fed into the RNNs we are going to train.
+For details on the data wrangling process, see the [Appendix](https://jamesotto852.github.io/text-generation-0/).
 Currently, we have data frames containing all sequences of lengths 1, 5, 10, and 30 for each corpus.
 Before fitting models for all corpuses and sequences, we'll walk through the process of training a RNN on sequences of length 5 from Merry Shelley's Frankenstein.
 
-First, we have to do a little processing as tensorflow expects data in the form of matrices:
+First, we have to do a little processing as keras expects data in the form of matrices:
 
 ```{r data, message = FALSE}
 df <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_5.csv")) 
@@ -51,15 +112,15 @@ Y_mat <- df |>
   select(Y) |>
   as.matrix()
 
-# tensorflow starts enumerating at 0
+# keras starts enumerating at 0
 X_mat <- X_mat - 1
 Y_mat <- Y_mat - 1
 ```
 
 Now, we define the RNN.
 Notice, we have an embedding layer before the rnn layer.
-The embedding layer "condenses" the high dimensional binary input space representing different letters into
-a lower dimensional continuous space with distances learned from the data.
+The embedding layer "condenses" the high dimensional binary input space representing all of the characters into
+a lower dimensional continuous space with relevant distances which are learned from the data.
 After being mapped into this space, the data is ready for the the recurrent layer.
 
 ```{r define_network, message = FALSE}
@@ -119,6 +180,10 @@ It is also possible that mild overfitting is necessary to produce coherent outpu
 ***
 
 Finally, we are able to make predictions from input sequences!
+We do so below using the seed `"Frank"`.
+Notice, we are sampling from the probability distribution defined by the output layer of the RNN and
+not just picking the character with the maximal softmax value.
+This prevents the generated text from getting stuck in loops.
 
 ```{r eval_network, comment = "", cache = TRUE}
 set.seed(1)
@@ -184,7 +249,7 @@ Y_mat <- df |>
   select(Y) |>
   as.matrix()
 
-# tensorflow starts index at 0
+# keras starts index at 0
 X_mat <- X_mat - 1
 Y_mat <- Y_mat - 1
 
@@ -216,6 +281,8 @@ plot(history, smooth = FALSE) +
 
 We train the networks programmatically, mapping across the data sets.
 Notice this is the same code as before, just slightly more general.
+Now that all of the networks are trained, we are able to evaluate their predictions.
+See [Text Generation 2 - Making Predictions](https://jamesotto852.github.io/text-generation-2/) for our results.
 
 ```{r source_create_training_data, echo = FALSE}
 source(here("R/fit_model.R"), local = knitr::knit_global())
@@ -229,7 +296,5 @@ expand_grid(author = list.files(here("Data/Gutenberg/raw")), k = c(1, 5, 10, 30)
   pwalk(fit_model)
 ```
 
-Now that all of the networks are trained, we are able to evaluate their predictions.
-See (blog post 2) for our results.
 
 

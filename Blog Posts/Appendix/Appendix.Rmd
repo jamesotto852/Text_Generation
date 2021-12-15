@@ -12,7 +12,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Introduction
 
 This is the appendix to the series on text generation with recursive neural networks.
-Here, we detail how we gathered, cleaned, and transformed the data necessary to train the models we considered.
+Here, we show how we gathered, cleaned, and transformed the data necessary to train the models we considered.
+
+***
 
 First, we load in the necessary packages:
 ```{r setup_visible, message=FALSE, warning=FALSE}
@@ -91,12 +93,12 @@ read_lines(file = here("Data/Gutenberg/cleaned/Merry Shelley/Frankenstein.txt"))
 
 ## Creating Training Data
 
-Now, we are ready to create the training data for our tensorflow models.
+Now, we are ready to create the training data for our keras models.
 We need to do quite a bit of work in order to get the data in the correct form.
 As we will eventually be training 4 models for each author (corresponding to sequence lengths 1, 5, 10, and 30),
 we need to create multiple training data sets per author.
 
-Additionally, the tensorflow models need numerical inputs -- not characters.
+Additionally, the keras models need numerical inputs -- not characters.
 Importantly, the ordering and scale of the numerical inputs is irrelevant.
 All that matters is that the function mapping characters to integers is invertible.
 For each author, we create an encoder/decoder pair arbitrarily based on the empirical frequency distribution of characters.
@@ -117,13 +119,13 @@ walk(authors, write_train_data, c(1, 5, 10, 30))
 ***
 Below, we include the first few training observations corresponding to Merry Shelley 
 corresponding to the data sets of sequences of lengths 1, 5, and 10
-The first set of observations is encoded in the machine-readable format tensorflow needs.
+The first set of observations is encoded in the machine-readable format keras needs.
 The following set is decoded, presented in a human-readable format.
 Notice, in each case the $Y$ column is the target --
 given the previous characters ($X_i$) it is our goal to accurately predict the next character ($Y$).
 
 At this point, the data is in the format necessary to train our models,
-see (blog posts 1 and 2) for details on implementation and results!
+see [Text Generation 1](https://jamesotto852.github.io/text-generation-1/) and [Text Generation 2](https://jamesotto852.github.io/text-generation-2/) for details on implementation and results!
 
 ```{r printing_training_data_1, message = FALSE}
 Shelley_data <- read_rds(here("Data/Training_Data/Merry Shelley/data.RDS"))

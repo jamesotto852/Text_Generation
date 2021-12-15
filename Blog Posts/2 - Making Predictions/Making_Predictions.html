@@ -11,6 +11,7 @@
 
 <meta name="author" content="James Otto" />
 
+<meta name="date" content="2021-12-14" />
 
 <title>Text Generation 2 - Making Predictions</title>
 
@@ -166,14 +167,17 @@ pre code {
 
 <h1 class="title toc-ignore">Text Generation 2 - Making Predictions</h1>
 <h4 class="author">James Otto</h4>
-<h4 class="date">12/7/2021</h4>
+<h4 class="date">12/14/2021</h4>
 
 </div>
 
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>This is the second post in a series on generating text with recurrent neural networks (RNNs). In the previous post, we trained asoldfjal</p>
+<p>This is the second post in a series on generating text with recurrent neural networks (RNNs). In the <a href="https://jamesotto852.github.io/text-generation-1/">previous post</a>, we trained sets of networks based on works by Merry Shelley, Jane Austen, and Lewis Carrol to make predictions based on character sequences of lengths 1, 5, 10, and 30. In this post we will evaluate these networks, comparing the standard method of padding input seeds with the proposed bootstrapping method.</p>
+<p>For details on the data wrangling process, see the <a href="https://jamesotto852.github.io/text-generation-0/">Appendix</a>.</p>
+<hr />
+<p>First, we load several <code>R</code> packages necessary for our analysis:</p>
 <pre class="r"><code>library(&quot;tidyverse&quot;); theme_set(theme_bw()); theme_update(panel.grid.minor = element_blank())
 library(&quot;here&quot;)
 
@@ -183,7 +187,7 @@ library(&quot;keras&quot;)</code></pre>
 </div>
 <div id="making-predictions" class="section level2">
 <h2>Making predictions</h2>
-<p>First, we include code to create predictions. Allows for both bootrapped and traditional style predictions, padding input seeds with whitespace and using the network trained on sequences of length 30.</p>
+<p>The following function takes an input sequence of arbitrary length (<code>seed</code>), loads the relevant RNN models for a specified author (<code>author</code>), and generates a number additional characters (<code>steps</code>). It does so either by padding the input seed or via the bootstrapping method, according to the <code>bootstrap</code> parameter.</p>
 <pre class="r"><code>run_model &lt;- function(seed, author, steps = 250, bootstrap = TRUE) {
   model_1 &lt;- load_model_hdf5(here(&quot;Models&quot;, author, &quot;model_1.h5&quot;))
   model_5 &lt;- load_model_hdf5(here(&quot;Models&quot;, author, &quot;model_5.h5&quot;))
@@ -236,7 +240,7 @@ library(&quot;keras&quot;)</code></pre>
 <hr />
 <div id="comparing-standard-and-bootstrapped-models" class="section level3">
 <h3>Comparing standard and bootstrapped models</h3>
-<p>First, we compare the output of the standard and bootstrap methods of predictions. While neither model is perfect, subjectively it seems that the bootstrap</p>
+<p>First, we compare the output of the standard and bootstrap methods of predictions. We do so based on the models trained on Merry Shelley’s Frankenstein, generating 10 sequences of length 100 from the input seed <code>&quot;A&quot;</code>. While neither model is great, subjectively it seems that the bootstrap might be producing slightly more realistic content. Especially in the first few characters, the bootstrapped model seems to be more coherent than the padding method. This makes intuitive sense, the effects of padding would be most pronounced in the first few predictions.</p>
 <pre class="r"><code>set.seed(1)
 
 map(1:10, \(.) run_model(&quot;A&quot;, &quot;Merry Shelley&quot;, 100, bootstrap = TRUE)) |&gt;
@@ -285,6 +289,7 @@ map(1:10, \(.) run_model(&quot;A&quot;, &quot;Merry Shelley&quot;, 100, bootstra
 </div>
 <div id="comparing-models-trained-on-different-authors" class="section level3">
 <h3>Comparing models trained on different authors</h3>
+<p>Below, we include the predictions from the bootstrap models trained on each author based on the input seed <code>&quot;I&quot;</code>. Each model seems to have a unique “style”, corresponding to the voice in the original texts. Interestingly, the output from the Jane Austen model seems to be the most coherent – this is likely due to the fact that her corpus was much larger than the others, consisting of the text from 6 books.</p>
 <pre class="r"><code>authors &lt;- list.files(here(&quot;Data/Training_Data&quot;))
 
 set.seed(1)
@@ -311,8 +316,9 @@ Merry Shelley:
 </div>
 <div id="final-thoughts" class="section level2">
 <h2>Final thoughts</h2>
-<p>Padding inputs with whitespace does seem to have a negative effect on a model’s predictions. The method of using several models trained on sequences of increasing lengths seems to outperform this standard method. We arbitrarily chose to train models on sequences of length <span class="math inline">\(k = 1, 5, 10, 30\)</span>. These values were arbitrary, it is likely that performance could be increased with tuning of this hyperparameter.</p>
-<p>A challenge in this analysis was the lack of objective measures of quality. When comparing the two proposed methods we had to resort to subjective judgements, comparing the output using our expectations</p>
+<p>It appears that padding inputs with whitespace may have a negative effect on a model’s predictions. Comparing our models’ outputs, if there is a difference it is small. Note that we chose to train models on sequences of length <span class="math inline">\(k = 1, 5, 10, 30\)</span>. These values were arbitrary, it is likely that performance could be increased with tuning of this hyperparameter.</p>
+<p>A challenge in this analysis was the lack of objective measures of quality. When comparing the two proposed methods we had to resort to subjective judgements, comparing the output using our opinions of what qualifies as convincing. If we had better models, we might be able to compare methods using automated methods such as spell checker. However, given the quality of the output of the models we trained this would not be an effective measure of comparison.</p>
+<p>The code used to conduct this analysis was written to be easy to use, understand, and extend. It would be very easy to create models for different authors, try different network architectures, or better tune the networks we proposed. We encourage others to fork <a href="https://github.com/jamesotto852/Text_Generation">our repository</a> and explore these or other questions!</p>
 </div>
 
 
