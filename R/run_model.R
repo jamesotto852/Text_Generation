@@ -35,8 +35,8 @@ run_model <- function(seed, author, steps = 250, bootstrap = TRUE) {
     probs <- make_pred(X, k) |>
       as_vector()
 
-    choices <- 1:(length(probs))
-    pred <- sample(x = choices, size = 1, prob = probs) - 1 # Off-by-one between R and Python
+    choices <- 1:(length(probs)) - 1 # Off-by-one between R and Python
+    pred <- sample(x = choices, size = 1, prob = probs)
 
     seed <- c(seed, pred)
   }
