@@ -338,7 +338,7 @@ walk2(authors, works, clean_gutenberg)</code></pre>
 <h2>Creating Training Data</h2>
 <p>Now, we are ready to create the training data for our tensorflow models. We need to do quite a bit of work in order to get the data in the correct form. As we will eventually be training 4 models for each author (corresponding to sequence lengths 1, 5, 10, and 30), we need to create multiple training data sets per author.</p>
 <p>Additionally, the tensorflow models need numerical inputs – not characters. Importantly, the ordering and scale of the numerical inputs is irrelevant. All that matters is that the function mapping characters to integers is invertible. For each author, we create an encoder/decoder pair arbitrarily based on the empirical frequency distribution of characters.</p>
-<p>Below, we include the helper functions which perform these tasks – the end goal is to create a directory for each author containing the 30 different data sets; the original corpus; and the encoder and decoder functions.</p>
+<p>Below, we include the helper functions which perform these tasks – the end goal is to create a directory for each author containing the 4 different data sets, the original corpus, and the encoder and decoder functions.</p>
 <pre class="r"><code># Function factories for vectorized encoders and decoders:
 encoder_fun &lt;- function(char_table) {
   encoder &lt;- function(char) {
@@ -423,7 +423,7 @@ write_train_data &lt;- function(author, batches, replace = FALSE) {
 }</code></pre>
 <pre class="r"><code>walk(authors, write_train_data, c(1, 5, 10, 30))</code></pre>
 <hr />
-<p>Below, we include the first few training observations corresponding to Merry Shelley corresponding to the data sets of sequences of lengths 1, 5, and 10 The first set of observations are encoded in the machine-readable format tensorflow needs. The following set are decoded, presented in a human-readable format. Notice, in each case the <span class="math inline">\(Y\)</span> column is the target – given the previous characters (<span class="math inline">\(X_i\)</span>) it is our goal to accurately predict the next character (<span class="math inline">\(Y\)</span>).</p>
+<p>Below, we include the first few training observations corresponding to Merry Shelley corresponding to the data sets of sequences of lengths 1, 5, and 10 The first set of observations is encoded in the machine-readable format tensorflow needs. The following set is decoded, presented in a human-readable format. Notice, in each case the <span class="math inline">\(Y\)</span> column is the target – given the previous characters (<span class="math inline">\(X_i\)</span>) it is our goal to accurately predict the next character (<span class="math inline">\(Y\)</span>).</p>
 <p>At this point, the data is in the format necessary to train our models, see (blog posts 1 and 2) for details on implementation and results!</p>
 <pre class="r"><code>Shelley_data &lt;- read_rds(here(&quot;Data/Training_Data/Merry Shelley/data.RDS&quot;))
 Shelley_df_seq_1 &lt;- read_csv(here(&quot;Data/Training_Data/Merry Shelley/df_seq_1.csv&quot;))

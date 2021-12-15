@@ -28,6 +28,8 @@ library("keras")
 
 ### A (Briefer) Introduction to Recurrent Neural Networks
 
+***
+
 ## Training a Network
 
 For details on the data wrangling process, see the Appendix.
@@ -36,7 +38,7 @@ We have formatted the data so that it is ready to be fed into the RNNs we are go
 Currently, we have data frames containing all sequences of lengths 1, 5, 10, and 30 for each corpus.
 Before fitting models for all corpuses and sequences, we'll walk through the process of training a RNN on sequences of length 5 from Merry Shelley's Frankenstein.
 
-First, we have to do a little processing as keras expects data in the form of matrices:
+First, we have to do a little processing as tensorflow expects data in the form of matrices:
 
 ```{r data, message = FALSE}
 df <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_5.csv")) 
@@ -49,12 +51,16 @@ Y_mat <- df |>
   select(Y) |>
   as.matrix()
 
-# tensorflow starts index at 0
+# tensorflow starts enumerating at 0
 X_mat <- X_mat - 1
 Y_mat <- Y_mat - 1
 ```
 
-Now, we define the RNN:
+Now, we define the RNN.
+Notice, we have an embedding layer before the rnn layer.
+The embedding layer "condenses" the high dimensional binary input space representing different letters into
+a lower dimensional continuous space with distances learned from the data.
+After being mapped into this space, the data is ready for the the recurrent layer.
 
 ```{r define_network, message = FALSE}
 n_target_nodes <- length(unique(df$Y)) 
@@ -71,7 +77,8 @@ model |> compile(loss = "sparse_categorical_crossentropy", optimizer = "adam", m
 summary(model)
 ```
 
-Next, we train the network:
+Next, we train the network.
+Note, we use a validation split of .1 to compare training and validation loss and accuracy across epochs.
 
 ```{r training_nework_show, eval = FALSE}
 model |> fit(
@@ -108,9 +115,12 @@ We are not sure why this is the case, we believe it might be due to the fact tha
 are poor metrics of success for these models.
 It is also possible that mild overfitting is necessary to produce coherent output.
 
+
+***
+
 Finally, we are able to make predictions from input sequences!
 
-```{r eval_network}
+```{r eval_network, comment = "", cache = TRUE}
 set.seed(1)
 
 # need encoder/decoder
@@ -131,26 +141,30 @@ for (i in 1:1000) {
   probs <- predict(model, X) |>
     as.vector()
   
-  choices <- 1:(length(probs))
-  pred <- sample(x = choices, size = 1, prob = probs) - 1 # Off-by-one between R and Python
+  choices <- 1:(length(probs)) - 1 # Off-by-one between R and Python
+  pred <- sample(x = choices, size = 1, prob = probs) 
   
   seed <- c(seed, pred)
-  
 }
 
 seed <- seed + 1 # Off-by-one between R and Python
 
 map_chr(seed, Shelley_data$decoder) |>
   paste(collapse = "") |>
-  cat()
+  (\(x) cat("\t", x, sep = ""))()
 
 ```
 
+It looks *okay*.
+The generated text is not going to pass a Turing test, but it is pretty impressive considering it is being "typed" out 
+one character at a time by the RNN.
+
+***
 
 ## Training all the Networks
 
 In order to train individual networks for each combination of author and sequences of length 1, 5, 10, and 30
-we need to make some concessions -- it is unfeasible to optimize hyperparameters for each network.
+we need to make some concessions -- it is infeasible to optimize hyperparameters for each network.
 We train each network for 40 epochs, as we mentioned earlier this number seems to produce the best predictions regardless of the validation accuracy and loss.
 <!-- We train each network for 8 epochs. -->
 <!-- While this seems inappropriate, we spot checked several author and sequence length combinations -->

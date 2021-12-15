@@ -102,8 +102,8 @@ All that matters is that the function mapping characters to integers is invertib
 For each author, we create an encoder/decoder pair arbitrarily based on the empirical frequency distribution of characters.
 
 Below, we include the helper functions which perform these tasks --
-the end goal is to create a directory for each author containing the 30 different data sets;
-the original corpus; and the encoder and decoder functions.
+the end goal is to create a directory for each author containing the 4 different data sets,
+the original corpus, and the encoder and decoder functions.
 ```{r source_create_training_data, echo = FALSE}
 source(here("R/create_training_data.R"), local = knitr::knit_global())
 ```
@@ -117,8 +117,8 @@ walk(authors, write_train_data, c(1, 5, 10, 30))
 ***
 Below, we include the first few training observations corresponding to Merry Shelley 
 corresponding to the data sets of sequences of lengths 1, 5, and 10
-The first set of observations are encoded in the machine-readable format tensorflow needs.
-The following set are decoded, presented in a human-readable format.
+The first set of observations is encoded in the machine-readable format tensorflow needs.
+The following set is decoded, presented in a human-readable format.
 Notice, in each case the $Y$ column is the target --
 given the previous characters ($X_i$) it is our goal to accurately predict the next character ($Y$).
 

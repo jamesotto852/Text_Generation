@@ -31,6 +31,7 @@ library("keras")
 tf$constant(1)
 ```
 
+***
 
 ## Making predictions
 
@@ -43,6 +44,8 @@ source(here("R/run_model.R"), local = knitr::knit_global())
 ```
 ```{r show_create_training_data, code=xfun::read_utf8(here::here("R/run_model.R"))}
 ```
+
+***
 
 ### Comparing standard and bootstrapped models
 
@@ -59,6 +62,7 @@ map(1:10, \(.) run_model("A", "Merry Shelley", 100, bootstrap = FALSE)) |>
   walk2(1:10, \(pred, i) cat(i, ": ", pred, "\n\n", sep = ""))
 ```
 
+***
 
 ### Comparing models trained on different authors
 
@@ -71,13 +75,14 @@ results <- map(authors, run_model, seed = "I", steps = 1000) |>
   mutate(author = authors) |>
   mutate(output = str_replace_all(output, "\\s+", " "))
   
-# names(results) <- authors
 print_results <- function(output, author) {
-  cat(author, ":\n", output, "\n\n", sep = "")
+  cat(author, ":\n\t", output, "\n\n", sep = "")
 }
 
 pwalk(results, print_results)
 ```
+
+***
 
 ## Final thoughts
 

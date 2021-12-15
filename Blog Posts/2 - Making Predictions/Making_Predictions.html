@@ -179,6 +179,7 @@ library(&quot;here&quot;)
 
 library(&quot;tensorflow&quot;)
 library(&quot;keras&quot;)</code></pre>
+<hr />
 </div>
 <div id="making-predictions" class="section level2">
 <h2>Making predictions</h2>
@@ -220,8 +221,8 @@ library(&quot;keras&quot;)</code></pre>
     probs &lt;- make_pred(X, k) |&gt;
       as_vector()
 
-    choices &lt;- 1:(length(probs))
-    pred &lt;- sample(x = choices, size = 1, prob = probs) - 1 # Off-by-one between R and Python
+    choices &lt;- 1:(length(probs)) - 1 # Off-by-one between R and Python
+    pred &lt;- sample(x = choices, size = 1, prob = probs)
 
     seed &lt;- c(seed, pred)
   }
@@ -232,6 +233,7 @@ library(&quot;keras&quot;)</code></pre>
     paste(collapse = &quot;&quot;) |&gt;
     str_remove(&quot;^\\s*(?=\\S)&quot;)
 }</code></pre>
+<hr />
 <div id="comparing-standard-and-bootstrapped-models" class="section level3">
 <h3>Comparing standard and bootstrapped models</h3>
 <p>First, we compare the output of the standard and bootstrap methods of predictions. While neither model is perfect, subjectively it seems that the bootstrap</p>
@@ -279,6 +281,7 @@ map(1:10, \(.) run_model(&quot;A&quot;, &quot;Merry Shelley&quot;, 100, bootstra
 9: A follow his attenate last midd information? You thas man, whilst the barbarous and is so long longed
 
 10: A handshaps of life thus noithy to too he knows continual; and we could with considerable existence a</code></pre>
+<hr />
 </div>
 <div id="comparing-models-trained-on-different-authors" class="section level3">
 <h3>Comparing models trained on different authors</h3>
@@ -290,20 +293,20 @@ results &lt;- map(authors, run_model, seed = &quot;I&quot;, steps = 1000) |&gt;
   mutate(author = authors) |&gt;
   mutate(output = str_replace_all(output, &quot;\\s+&quot;, &quot; &quot;))
   
-# names(results) &lt;- authors
 print_results &lt;- function(output, author) {
-  cat(author, &quot;:\n&quot;, output, &quot;\n\n&quot;, sep = &quot;&quot;)
+  cat(author, &quot;:\n\t&quot;, output, &quot;\n\n&quot;, sep = &quot;&quot;)
 }
 
 pwalk(results, print_results)</code></pre>
 <pre><code>Jane Austen:
-I happen with them? Stood in return from Northanger, the time. She could not finish them to the insensicly styla, which Isabella at the Parsonage. Why is it not passing towards frequently unprevious with the calmerness; and it had a very different man, perhaps you will be gone at the three years be to anybody they aedness.—This was _that_ was an “Give her for what is she not, to be satisfied, Miss Tilney’ had come away.” “That is a part of consequence to Berkeley Street. Yet, is never he was existed. She could not wrate to a chapel opening your notice; and, in making round as her walk instery on coming as long as his character near on, not to get away. The brother says we seem so hatelbed a pity to make her time to marry, and she restrained Colonel Forster&#39;s chay. “On a wife’s way; what this is good; they reached, most commoney Willoughby was deserved assiduite; but the word, the subject of me; chiefly only side, a most much close with it abusably thought; and — The w
+    I happen with them? Stood in return from Northanger, the time. She could not finish them to the insensicly styla, which Isabella at the Parsonage. Why is it not passing towards frequently unprevious with the calmerness; and it had a very different man, perhaps you will be gone at the three years be to anybody they aedness.—This was _that_ was an “Give her for what is she not, to be satisfied, Miss Tilney’ had come away.” “That is a part of consequence to Berkeley Street. Yet, is never he was existed. She could not wrate to a chapel opening your notice; and, in making round as her walk instery on coming as long as his character near on, not to get away. The brother says we seem so hatelbed a pity to make her time to marry, and she restrained Colonel Forster&#39;s chay. “On a wife’s way; what this is good; they reached, most commoney Willoughby was deserved assiduite; but the word, the subject of me; chiefly only side, a most much close with it abusably thought; and — The w
 
 Lewis Carrol:
-I m Starte grazn, and peeped over some in it: they’se half or intenth?” “Mewning about that was very much sure that it was lespen him for them, and so bean?” “It _shall_ ditsen in the most in up: Her fundery in the weitt interestor to her undor cudnies of them all as ears it it. Porrapidy all she stak dulbring down, and then stom your nass is the twingly Dunw,” she said to herself. “It’s no came from,” he said to bevin.” “I had knowing off timidly, “you wore hear when you like,” said the White Rabbit, “but that right’s hear as I shat’s moing, with the King’s coarsu to burr menwy wanted to be created my sibteak: to having sieden!” “Can to call about for thiss; and I’m sure justsucte’s little thing about it, or soldisulas. “That’s a qoent ot muth commertas out bodes,” said the King englisadded to this was heaving the limt griend Alice’s creatures.” “Not I’m her?” Alice was getting quicely turned to be no use into things turnly in by things, but out to you so!” said the Red Queen. “—I dren
+    I m Starte grazn, and peeped over some in it: they’se half or intenth?” “Mewning about that was very much sure that it was lespen him for them, and so bean?” “It _shall_ ditsen in the most in up: Her fundery in the weitt interestor to her undor cudnies of them all as ears it it. Porrapidy all she stak dulbring down, and then stom your nass is the twingly Dunw,” she said to herself. “It’s no came from,” he said to bevin.” “I had knowing off timidly, “you wore hear when you like,” said the White Rabbit, “but that right’s hear as I shat’s moing, with the King’s coarsu to burr menwy wanted to be created my sibteak: to having sieden!” “Can to call about for thiss; and I’m sure justsucte’s little thing about it, or soldisulas. “That’s a qoent ot muth commertas out bodes,” said the King englisadded to this was heaving the limt griend Alice’s creatures.” “Not I’m her?” Alice was getting quicely turned to be no use into things turnly in by things, but out to you so!” said the Red Queen. “—I dren
 
 Merry Shelley:
-I St to me that I was frietes, then in every thoughts would be human metsers present to hum on the faces of wonders arisned me and to his kindness and gave near horror; and my first appearance, shall covered with the events which no man is renotfical age was tey thought; but ufter passed my own feelings shone on the restless that I have doubts savaucheded seving me from my syudy in the same time that you surrutions vast intended by riscessol instantly effected in its singres of William, Jyet-roubted _than many hat her enterprise. But alluring rendersed the brudking fortnd—and immease with inamisents of this delay and indecent epent, and talines performed the forder of wonder and tererness and misery. She passed through our soul made the pace she had reasonous departure presurplied several plaises, and would not expect the sail. Amazis ridem; but I felt by the numse; you will deep deare to my chinks we iple. During this moments I, and such my only children. Seated with shiding greatest s</code></pre>
+    I St to me that I was frietes, then in every thoughts would be human metsers present to hum on the faces of wonders arisned me and to his kindness and gave near horror; and my first appearance, shall covered with the events which no man is renotfical age was tey thought; but ufter passed my own feelings shone on the restless that I have doubts savaucheded seving me from my syudy in the same time that you surrutions vast intended by riscessol instantly effected in its singres of William, Jyet-roubted _than many hat her enterprise. But alluring rendersed the brudking fortnd—and immease with inamisents of this delay and indecent epent, and talines performed the forder of wonder and tererness and misery. She passed through our soul made the pace she had reasonous departure presurplied several plaises, and would not expect the sail. Amazis ridem; but I felt by the numse; you will deep deare to my chinks we iple. During this moments I, and such my only children. Seated with shiding greatest s</code></pre>
+<hr />
 </div>
 </div>
 <div id="final-thoughts" class="section level2">
