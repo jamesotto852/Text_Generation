@@ -35,12 +35,12 @@ source(here("R/download_gutenberg.R"), local = knitr::knit_global())
 
 Now, we download a few files:
 ```{r downloading_files, eval = FALSE}
-# Frankenstein
-download_gutenberg("https://www.gutenberg.org/files/84/84-0.txt", "Merry Shelley", "Frankenstein")
+# Mary Shelley's Frankenstein
+download_gutenberg("https://www.gutenberg.org/files/84/84-0.txt", "Mary Shelley", "Frankenstein")
 
-# Lewis Carrol's Alice in Wonderland Series
-download_gutenberg("https://www.gutenberg.org/files/11/11-0.txt", "Lewis Carrol", "Alice_in_Wonderland")
-download_gutenberg("https://www.gutenberg.org/files/12/12-0.txt", "Lewis Carrol", "Through_the_Looking_Glass")
+# Lewis Carroll's Alice in Wonderland Series
+download_gutenberg("https://www.gutenberg.org/files/11/11-0.txt", "Lewis Carroll", "Alice_in_Wonderland")
+download_gutenberg("https://www.gutenberg.org/files/12/12-0.txt", "Lewis Carroll", "Through_the_Looking_Glass")
 
 # The works of Jane Austen
 download_gutenberg("https://www.gutenberg.org/files/158/158-0.txt", "Jane Austen", "Emma")
@@ -53,7 +53,7 @@ download_gutenberg("https://www.gutenberg.org/files/161/161-0.txt", "Jane Austen
 
 Below, we include the first few lines of the downloaded Frankenstein file:
 ```{r printing_raw_lines, options}
-read_lines(here("Data/Gutenberg/raw/Merry Shelley/Frankenstein.txt"))[1:85]
+read_lines(here("Data/Gutenberg/raw/Mary Shelley/Frankenstein.txt"))[1:85]
 ```
 
 ***
@@ -84,7 +84,7 @@ walk2(authors, works, clean_gutenberg)
 
 Below, we include the first few lines of the cleaned Frankenstein file:
 ```{r printing_clean_lines, options}
-read_lines(file = here("Data/Gutenberg/cleaned/Merry Shelley/Frankenstein.txt"))[1:79]
+read_lines(file = here("Data/Gutenberg/cleaned/Mary Shelley/Frankenstein.txt"))[1:79]
 ```
 
 ***
@@ -117,7 +117,7 @@ walk(authors, write_train_data, c(1, 5, 10, 30))
 ```
 
 ***
-Below, we include the first few training observations corresponding to Merry Shelley 
+Below, we include the first few training observations corresponding to Mary Shelley 
 corresponding to the data sets of sequences of lengths 1, 5, and 10
 The first set of observations is encoded in the machine-readable format keras needs.
 The following set is decoded, presented in a human-readable format.
@@ -128,10 +128,10 @@ At this point, the data is in the format necessary to train our models,
 see [Text Generation 1](https://jamesotto852.github.io/text-generation-1/) and [Text Generation 2](https://jamesotto852.github.io/text-generation-2/) for details on implementation and results!
 
 ```{r printing_training_data_1, message = FALSE}
-Shelley_data <- read_rds(here("Data/Training_Data/Merry Shelley/data.RDS"))
-Shelley_df_seq_1 <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_1.csv"))
-Shelley_df_seq_5 <-  read_csv(here("Data/Training_Data/Merry Shelley/df_seq_5.csv"))
-Shelley_df_seq_10 <-  read_csv(here("Data/Training_Data/Merry Shelley/df_seq_10.csv"))
+Shelley_data <- read_rds(here("Data/Training_Data/Mary Shelley/data.RDS"))
+Shelley_df_seq_1 <- read_csv(here("Data/Training_Data/Mary Shelley/df_seq_1.csv"))
+Shelley_df_seq_5 <-  read_csv(here("Data/Training_Data/Mary Shelley/df_seq_5.csv"))
+Shelley_df_seq_10 <-  read_csv(here("Data/Training_Data/Mary Shelley/df_seq_10.csv"))
 ```
 
 ```{r printing_training_data_2, collapse = TRUE}

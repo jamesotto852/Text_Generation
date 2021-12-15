@@ -191,12 +191,12 @@ library(&quot;here&quot;)</code></pre>
   download.file(url, here(ROOT_DIR, author, paste0(title, &quot;.txt&quot;)))
 }</code></pre>
 <p>Now, we download a few files:</p>
-<pre class="r"><code># Frankenstein
-download_gutenberg(&quot;https://www.gutenberg.org/files/84/84-0.txt&quot;, &quot;Merry Shelley&quot;, &quot;Frankenstein&quot;)
+<pre class="r"><code># Mary Shelley&#39;s Frankenstein
+download_gutenberg(&quot;https://www.gutenberg.org/files/84/84-0.txt&quot;, &quot;Mary Shelley&quot;, &quot;Frankenstein&quot;)
 
-# Lewis Carrol&#39;s Alice in Wonderland Series
-download_gutenberg(&quot;https://www.gutenberg.org/files/11/11-0.txt&quot;, &quot;Lewis Carrol&quot;, &quot;Alice_in_Wonderland&quot;)
-download_gutenberg(&quot;https://www.gutenberg.org/files/12/12-0.txt&quot;, &quot;Lewis Carrol&quot;, &quot;Through_the_Looking_Glass&quot;)
+# Lewis Carroll&#39;s Alice in Wonderland Series
+download_gutenberg(&quot;https://www.gutenberg.org/files/11/11-0.txt&quot;, &quot;Lewis Carroll&quot;, &quot;Alice_in_Wonderland&quot;)
+download_gutenberg(&quot;https://www.gutenberg.org/files/12/12-0.txt&quot;, &quot;Lewis Carroll&quot;, &quot;Through_the_Looking_Glass&quot;)
 
 # The works of Jane Austen
 download_gutenberg(&quot;https://www.gutenberg.org/files/158/158-0.txt&quot;, &quot;Jane Austen&quot;, &quot;Emma&quot;)
@@ -206,7 +206,7 @@ download_gutenberg(&quot;https://www.gutenberg.org/cache/epub/105/pg105.txt&quot
 download_gutenberg(&quot;https://www.gutenberg.org/files/121/121-0.txt&quot;, &quot;Jane Austen&quot;, &quot;Northanger_Abbey&quot;)
 download_gutenberg(&quot;https://www.gutenberg.org/files/161/161-0.txt&quot;, &quot;Jane Austen&quot;, &quot;Sense_and_Sensibility&quot;)</code></pre>
 <p>Below, we include the first few lines of the downloaded Frankenstein file:</p>
-<pre class="r"><code>read_lines(here(&quot;Data/Gutenberg/raw/Merry Shelley/Frankenstein.txt&quot;))[1:85]</code></pre>
+<pre class="r"><code>read_lines(here(&quot;Data/Gutenberg/raw/Mary Shelley/Frankenstein.txt&quot;))[1:85]</code></pre>
 <pre><code>##  [1] &quot;The Project Gutenberg eBook of Frankenstein, by Mary Wollstonecraft (Godwin) Shelley&quot;                    
 ##  [2] &quot;&quot;                                                                                                        
 ##  [3] &quot;This eBook is for the use of anyone anywhere in the United States and&quot;                                   
@@ -327,7 +327,7 @@ works &lt;- map(authors, \(x) list.files(here(&quot;Data/Gutenberg/raw&quot;, x)
 
 walk2(authors, works, clean_gutenberg)</code></pre>
 <p>Below, we include the first few lines of the cleaned Frankenstein file:</p>
-<pre class="r"><code>read_lines(file = here(&quot;Data/Gutenberg/cleaned/Merry Shelley/Frankenstein.txt&quot;))[1:79]</code></pre>
+<pre class="r"><code>read_lines(file = here(&quot;Data/Gutenberg/cleaned/Mary Shelley/Frankenstein.txt&quot;))[1:79]</code></pre>
 <pre><code>##  [1] &quot;F&quot; &quot;r&quot; &quot;a&quot; &quot;n&quot; &quot;k&quot; &quot;e&quot; &quot;n&quot; &quot;s&quot; &quot;t&quot; &quot;e&quot; &quot;i&quot; &quot;n&quot; &quot;;&quot; &quot; &quot; &quot;o&quot; &quot;r&quot; &quot;,&quot; &quot; &quot; &quot;t&quot;
 ## [20] &quot;h&quot; &quot;e&quot; &quot; &quot; &quot;M&quot; &quot;o&quot; &quot;d&quot; &quot;e&quot; &quot;r&quot; &quot;n&quot; &quot; &quot; &quot;P&quot; &quot;r&quot; &quot;o&quot; &quot;m&quot; &quot;e&quot; &quot;t&quot; &quot;h&quot; &quot;e&quot; &quot;u&quot;
 ## [39] &quot;s&quot; &quot; &quot; &quot;b&quot; &quot;y&quot; &quot; &quot; &quot;M&quot; &quot;a&quot; &quot;r&quot; &quot;y&quot; &quot; &quot; &quot;W&quot; &quot;o&quot; &quot;l&quot; &quot;l&quot; &quot;s&quot; &quot;t&quot; &quot;o&quot; &quot;n&quot; &quot;e&quot;
@@ -424,12 +424,12 @@ write_train_data &lt;- function(author, batches, replace = FALSE) {
 }</code></pre>
 <pre class="r"><code>walk(authors, write_train_data, c(1, 5, 10, 30))</code></pre>
 <hr />
-<p>Below, we include the first few training observations corresponding to Merry Shelley corresponding to the data sets of sequences of lengths 1, 5, and 10 The first set of observations is encoded in the machine-readable format keras needs. The following set is decoded, presented in a human-readable format. Notice, in each case the <span class="math inline">\(Y\)</span> column is the target – given the previous characters (<span class="math inline">\(X_i\)</span>) it is our goal to accurately predict the next character (<span class="math inline">\(Y\)</span>).</p>
+<p>Below, we include the first few training observations corresponding to Mary Shelley corresponding to the data sets of sequences of lengths 1, 5, and 10 The first set of observations is encoded in the machine-readable format keras needs. The following set is decoded, presented in a human-readable format. Notice, in each case the <span class="math inline">\(Y\)</span> column is the target – given the previous characters (<span class="math inline">\(X_i\)</span>) it is our goal to accurately predict the next character (<span class="math inline">\(Y\)</span>).</p>
 <p>At this point, the data is in the format necessary to train our models, see <a href="https://jamesotto852.github.io/text-generation-1/">Text Generation 1</a> and <a href="https://jamesotto852.github.io/text-generation-2/">Text Generation 2</a> for details on implementation and results!</p>
-<pre class="r"><code>Shelley_data &lt;- read_rds(here(&quot;Data/Training_Data/Merry Shelley/data.RDS&quot;))
-Shelley_df_seq_1 &lt;- read_csv(here(&quot;Data/Training_Data/Merry Shelley/df_seq_1.csv&quot;))
-Shelley_df_seq_5 &lt;-  read_csv(here(&quot;Data/Training_Data/Merry Shelley/df_seq_5.csv&quot;))
-Shelley_df_seq_10 &lt;-  read_csv(here(&quot;Data/Training_Data/Merry Shelley/df_seq_10.csv&quot;))</code></pre>
+<pre class="r"><code>Shelley_data &lt;- read_rds(here(&quot;Data/Training_Data/Mary Shelley/data.RDS&quot;))
+Shelley_df_seq_1 &lt;- read_csv(here(&quot;Data/Training_Data/Mary Shelley/df_seq_1.csv&quot;))
+Shelley_df_seq_5 &lt;-  read_csv(here(&quot;Data/Training_Data/Mary Shelley/df_seq_5.csv&quot;))
+Shelley_df_seq_10 &lt;-  read_csv(here(&quot;Data/Training_Data/Mary Shelley/df_seq_10.csv&quot;))</code></pre>
 <pre class="r"><code># Printing the first few encoded rows
 
 head(Shelley_df_seq_1)

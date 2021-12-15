@@ -97,12 +97,12 @@ lengths generalizes to other applications of RNNs as well
 We have formatted the data so that it is ready to be fed into the RNNs we are going to train.
 For details on the data wrangling process, see the [Appendix](https://jamesotto852.github.io/text-generation-0/).
 Currently, we have data frames containing all sequences of lengths 1, 5, 10, and 30 for each corpus.
-Before fitting models for all corpuses and sequences, we'll walk through the process of training a RNN on sequences of length 5 from Merry Shelley's Frankenstein.
+Before fitting models for all corpuses and sequences, we'll walk through the process of training a RNN on sequences of length 5 from Mary Shelley's Frankenstein.
 
 First, we have to do a little processing as keras expects data in the form of matrices:
 
 ```{r data, message = FALSE}
-df <- read_csv(here("Data/Training_Data/Merry Shelley/df_seq_5.csv")) 
+df <- read_csv(here("Data/Training_Data/Mary Shelley/df_seq_5.csv")) 
 
 X_mat <- df |>
   select(starts_with("X")) |>
@@ -189,7 +189,7 @@ This prevents the generated text from getting stuck in loops.
 set.seed(1)
 
 # need encoder/decoder
-Shelley_data <- read_rds(here("Data/Training_Data/Merry Shelley/data.RDS"))
+Shelley_data <- read_rds(here("Data/Training_Data/Mary Shelley/data.RDS"))
 
 # Making predictions starting with seed "Frank"
 seed <- c("F", "r", "a", "n", "k") |>

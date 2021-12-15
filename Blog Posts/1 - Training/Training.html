@@ -207,9 +207,9 @@ library(&quot;keras&quot;)</code></pre>
 </div>
 <div id="training-a-network" class="section level2">
 <h2>Training a Network</h2>
-<p>We have formatted the data so that it is ready to be fed into the RNNs we are going to train. For details on the data wrangling process, see the <a href="https://jamesotto852.github.io/text-generation-0/">Appendix</a>. Currently, we have data frames containing all sequences of lengths 1, 5, 10, and 30 for each corpus. Before fitting models for all corpuses and sequences, we’ll walk through the process of training a RNN on sequences of length 5 from Merry Shelley’s Frankenstein.</p>
+<p>We have formatted the data so that it is ready to be fed into the RNNs we are going to train. For details on the data wrangling process, see the <a href="https://jamesotto852.github.io/text-generation-0/">Appendix</a>. Currently, we have data frames containing all sequences of lengths 1, 5, 10, and 30 for each corpus. Before fitting models for all corpuses and sequences, we’ll walk through the process of training a RNN on sequences of length 5 from Mary Shelley’s Frankenstein.</p>
 <p>First, we have to do a little processing as keras expects data in the form of matrices:</p>
-<pre class="r"><code>df &lt;- read_csv(here(&quot;Data/Training_Data/Merry Shelley/df_seq_5.csv&quot;)) 
+<pre class="r"><code>df &lt;- read_csv(here(&quot;Data/Training_Data/Mary Shelley/df_seq_5.csv&quot;)) 
 
 X_mat &lt;- df |&gt;
   select(starts_with(&quot;X&quot;)) |&gt;
@@ -260,7 +260,7 @@ model |&gt; compile(loss = &quot;sparse_categorical_crossentropy&quot;, optimize
 <pre class="r"><code>set.seed(1)
 
 # need encoder/decoder
-Shelley_data &lt;- read_rds(here(&quot;Data/Training_Data/Merry Shelley/data.RDS&quot;))
+Shelley_data &lt;- read_rds(here(&quot;Data/Training_Data/Mary Shelley/data.RDS&quot;))
 
 # Making predictions starting with seed &quot;Frank&quot;
 seed &lt;- c(&quot;F&quot;, &quot;r&quot;, &quot;a&quot;, &quot;n&quot;, &quot;k&quot;) |&gt;

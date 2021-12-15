@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 This is the second post in a series on generating text with recurrent neural networks (RNNs).
 In the [previous post](https://jamesotto852.github.io/text-generation-1/),
-we trained sets of networks based on works by Merry Shelley, Jane Austen, and Lewis Carrol to make predictions based on character sequences of lengths 1, 5, 10, and 30.
+we trained sets of networks based on works by Mary Shelley, Jane Austen, and Lewis Carroll to make predictions based on character sequences of lengths 1, 5, 10, and 30.
 In this post we will evaluate these networks, comparing the standard method of padding input seeds with the proposed bootstrapping method.
 
 For details on the data wrangling process, see the [Appendix](https://jamesotto852.github.io/text-generation-0/).
@@ -58,7 +58,7 @@ source(here("R/run_model.R"), local = knitr::knit_global())
 ### Comparing standard and bootstrapped models
 
 First, we compare the output of the standard and bootstrap methods of predictions.
-We do so based on the models trained on Merry Shelley's Frankenstein,
+We do so based on the models trained on Mary Shelley's Frankenstein,
 generating 10 sequences of length 100 from the input seed `"A"`.
 While neither model is great, subjectively it seems that the bootstrap might be producing slightly more realistic content. 
 Especially in the first few characters, the bootstrapped model seems to be more coherent than the padding method.
@@ -67,10 +67,10 @@ This makes intuitive sense, the effects of padding would be most pronounced in t
 ```{r creating_training_data, cache = TRUE, comment = ""}
 set.seed(1)
 
-map(1:10, \(.) run_model("A", "Merry Shelley", 100, bootstrap = TRUE)) |>
+map(1:10, \(.) run_model("A", "Mary Shelley", 100, bootstrap = TRUE)) |>
   walk2(1:10, \(pred, i) cat(i, ": ", pred, "\n\n", sep = ""))
   
-map(1:10, \(.) run_model("A", "Merry Shelley", 100, bootstrap = FALSE)) |>
+map(1:10, \(.) run_model("A", "Mary Shelley", 100, bootstrap = FALSE)) |>
   walk2(1:10, \(pred, i) cat(i, ": ", pred, "\n\n", sep = ""))
 ```
 
@@ -118,7 +118,6 @@ However, given the quality of the output of the models we trained this would not
 The code used to conduct this analysis was written to be easy to use, understand, and extend.
 It would be very easy to create models for different authors, try different network architectures, or better tune the networks we proposed.
 We encourage others to fork [our repository](https://github.com/jamesotto852/Text_Generation) and explore these or other questions!
-
 
 
 
