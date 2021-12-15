@@ -4,7 +4,10 @@
 .Ruserdata
 
 Data
-*cache
+Models
+*h5
+
+*_cache
+*_files
 
 .rds
-.h5
