@@ -3,6 +3,8 @@ title: "Text Generation 2 - Making Predictions"
 author: "James Otto"
 date: "12/14/2021"
 output: html_document
+bibliography: ../references.bib 
+nocite: '@*'
 ---
 
 ```{r setup, include=FALSE}
@@ -118,6 +120,10 @@ However, given the quality of the output of the models we trained this would not
 The code used to conduct this analysis was written to be easy to use, understand, and extend.
 It would be very easy to create models for different authors, try different network architectures, or better tune the networks we proposed.
 We encourage others to fork [our repository](https://github.com/jamesotto852/Text_Generation) and explore these or other questions!
+
+***
+
+## References
 
 
 

@@ -58,6 +58,28 @@ if (window.hljs) {
 
 
 
+<style type="text/css">
+/* for pandoc --citeproc since 2.11 */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
 
 
 
@@ -289,7 +311,7 @@ map(1:10, \(.) run_model(&quot;A&quot;, &quot;Mary Shelley&quot;, 100, bootstrap
 </div>
 <div id="comparing-models-trained-on-different-authors" class="section level3">
 <h3>Comparing models trained on different authors</h3>
-<p>Below, we include the predictions from the bootstrap models trained on each author based on the input seed <code>&quot;I&quot;</code>. Each model seems to have a unique “style”, corresponding to the voice in the original texts. Interestingly, the output from the Jane Austen model seems to be the most coherent – this is likely due to the fact that her corpus was much larger than the others, consisting of the text from 6 books.</p>
+<p>Below, we include the predictions from the bootstrap models trained on each author based on the input seed <code>&quot;I&quot;</code>. Each model seems to have a unique “style,” corresponding to the voice in the original texts. Interestingly, the output from the Jane Austen model seems to be the most coherent – this is likely due to the fact that her corpus was much larger than the others, consisting of the text from 6 books.</p>
 <pre class="r"><code>authors &lt;- list.files(here(&quot;Data/Training_Data&quot;))
 
 set.seed(1)
@@ -319,6 +341,33 @@ Mary Shelley:
 <p>It appears that padding inputs with whitespace may have a negative effect on a model’s predictions. Comparing our models’ outputs, if there is a difference it is small. Note that we chose to train models on sequences of length <span class="math inline">\(k = 1, 5, 10, 30\)</span>. These values were arbitrary, it is likely that performance could be increased with tuning of this hyperparameter.</p>
 <p>A challenge in this analysis was the lack of objective measures of quality. When comparing the two proposed methods we had to resort to subjective judgements, comparing the output using our opinions of what qualifies as convincing. If we had better models, we might be able to compare methods using automated methods such as spell checker. However, given the quality of the output of the models we trained this would not be an effective measure of comparison.</p>
 <p>The code used to conduct this analysis was written to be easy to use, understand, and extend. It would be very easy to create models for different authors, try different network architectures, or better tune the networks we proposed. We encourage others to fork <a href="https://github.com/jamesotto852/Text_Generation">our repository</a> and explore these or other questions!</p>
+<hr />
+</div>
+<div id="references" class="section level2 unnumbered">
+<h2 class="unnumbered">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-keras" class="csl-entry">
+Allaire, JJ, and François Chollet. 2021. <em>Keras: R Interface to ’Keras’</em>. <a href="https://CRAN.R-project.org/package=keras">https://CRAN.R-project.org/package=keras</a>.
+</div>
+<div id="ref-tensorflow" class="csl-entry">
+Allaire, JJ, and Yuan Tang. 2021. <em>Tensorflow: R Interface to ’TensorFlow’</em>. <a href="https://CRAN.R-project.org/package=tensorflow">https://CRAN.R-project.org/package=tensorflow</a>.
+</div>
+<div id="ref-Collet" class="csl-entry">
+Chollet, François. 2018. <em>Deep Learning with r</em>. Manning Publications.
+</div>
+<div id="ref-Goodfellow" class="csl-entry">
+Goodfellow, Ian J., Yoshua Bengio, and Aaron Courville. 2016. <em>Deep Learning</em>. MIT Press.
+</div>
+<div id="ref-here" class="csl-entry">
+Müller, Kirill. 2020. <em>Here: A Simpler Way to Find Your Files</em>. <a href="https://CRAN.R-project.org/package=here">https://CRAN.R-project.org/package=here</a>.
+</div>
+<div id="ref-R" class="csl-entry">
+R Core Team. 2021. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-tidyverse" class="csl-entry">
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019. <span>“Welcome to the <span class="nocase">tidyverse</span>.”</span> <em>Journal of Open Source Software</em> 4 (43): 1686. <a href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
+</div>
+</div>
 </div>
 
 

@@ -5,6 +5,8 @@ date: "12/7/2021"
 output:
   html_document:
     fig_caption: false
+bibliography: ../references.bib 
+nocite: '@*'
 ---
 
 ```{r setup, include=FALSE}
@@ -295,6 +297,12 @@ expand_grid(author = list.files(here("Data/Gutenberg/raw")), k = c(1, 5, 10, 30)
   mutate(n_epochs = 40) |>
   pwalk(fit_model)
 ```
+
+
+***
+
+## References
+
 
 
 

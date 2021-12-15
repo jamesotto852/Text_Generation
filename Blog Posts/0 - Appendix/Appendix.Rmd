@@ -3,6 +3,8 @@ title: "Text Generation (Appendix)"
 author: "James Otto"
 date: "10/22/2021"
 output: html_document
+bibliography: ../references.bib 
+nocite: '@*'
 ---
 
 ```{r setup, include=FALSE}
@@ -154,4 +156,8 @@ head(Shelley_df_seq_5) |> mutate(across(everything(), Shelley_data$decoder))
 head(Shelley_df_seq_10) |> mutate(across(everything(), Shelley_data$decoder))
 ```
 
+
+***
+
+## References
 
