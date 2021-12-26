@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   out.width = "100%")
 ```
 
-## Introduction
+<!-- ## Introduction -->
 
 This is the first post in a series on generating text with recurrent neural networks (RNNs).
 We will be using the [R interface to Keras](https://keras.rstudio.com/) for training and making predictions with our models.

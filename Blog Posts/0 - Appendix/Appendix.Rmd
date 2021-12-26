@@ -11,10 +11,11 @@ nocite: '@*'
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction
+<!-- ## Introduction -->
 
-This is the appendix to the series on text generation with recursive neural networks.
+This is the appendix for the series on text generation with recursive neural networks.
 Here, we show how we gathered, cleaned, and transformed the data necessary to train the models we considered.
+All of the code used in this analysis is available on [Github](https://github.com/jamesotto852/Text_Generation).
 
 ***
 

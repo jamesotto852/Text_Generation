@@ -189,8 +189,7 @@ pre code {
 </div>
 
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
+<!-- ## Introduction -->
 <p>This is the first post in a series on generating text with recurrent neural networks (RNNs). We will be using the <a href="https://keras.rstudio.com/">R interface to Keras</a> for training and making predictions with our models. All of the code to reproduce this analysis has been echoed and is also available on <a href="https://github.com/jamesotto852/Text_Generation">my Github</a>.</p>
 <hr />
 <p>First, we load several <code>R</code> packages necessary for our analysis:</p>
@@ -221,7 +220,6 @@ library(&quot;keras&quot;)</code></pre>
 <p>For example, if we wanted to make predictions based on the input “seed” <code>&quot;A&quot;</code>, we would use the RNN trained on sequences of length 1 to predict the first four characters: <code>&quot;A____&quot;</code>. We would then switch to the RNN trained on sequences of length 5 to predict the following 5 characters, at which point we would switch to the network trained on sequences of length 10. Once the sequence reaches a length of 30, we can switch to the final network trained on inputs of length 30. This procedure can generate predictions from input seeds of arbitrary lengths without padding!</p>
 <p>While we are considering the specific application of character generation, the idea of making predictions using several models trained on sequences of increasing lengths generalizes to other applications of RNNs as well</p>
 <hr />
-</div>
 </div>
 <div id="training-a-network" class="section level2">
 <h2>Training a Network</h2>

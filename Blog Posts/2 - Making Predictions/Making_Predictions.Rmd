@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
   out.width = "100%")
 ```
 
-## Introduction
+<!-- ## Introduction -->
 
 This is the second post in a series on generating text with recurrent neural networks (RNNs).
 In the [previous post](https://jamesotto852.github.io/text-generation-1/),
@@ -24,6 +24,7 @@ we trained sets of networks based on works by Mary Shelley, Jane Austen, and Lew
 In this post we will evaluate these networks, comparing the standard method of padding input seeds with the proposed bootstrapping method.
 
 For details on the data wrangling process, see the [Appendix](https://jamesotto852.github.io/text-generation-0/).
+Additionally, all of the code used in this analysis is available on [Github](https://github.com/jamesotto852/Text_Generation).
 
 ***
 

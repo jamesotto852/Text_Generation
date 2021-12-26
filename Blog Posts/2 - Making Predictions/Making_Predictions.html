@@ -189,10 +189,9 @@ pre code {
 </div>
 
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
+<!-- ## Introduction -->
 <p>This is the second post in a series on generating text with recurrent neural networks (RNNs). In the <a href="https://jamesotto852.github.io/text-generation-1/">previous post</a>, we trained sets of networks based on works by Mary Shelley, Jane Austen, and Lewis Carroll to make predictions based on character sequences of lengths 1, 5, 10, and 30. In this post we will evaluate these networks, comparing the standard method of padding input seeds with the proposed bootstrapping method.</p>
-<p>For details on the data wrangling process, see the <a href="https://jamesotto852.github.io/text-generation-0/">Appendix</a>.</p>
+<p>For details on the data wrangling process, see the <a href="https://jamesotto852.github.io/text-generation-0/">Appendix</a>. Additionally, all of the code used in this analysis is available on <a href="https://github.com/jamesotto852/Text_Generation">Github</a>.</p>
 <hr />
 <p>First, we load several <code>R</code> packages necessary for our analysis:</p>
 <pre class="r"><code>library(&quot;tidyverse&quot;); theme_set(theme_bw()); theme_update(panel.grid.minor = element_blank())
@@ -201,7 +200,6 @@ library(&quot;here&quot;)
 library(&quot;tensorflow&quot;)
 library(&quot;keras&quot;)</code></pre>
 <hr />
-</div>
 <div id="making-predictions" class="section level2">
 <h2>Making predictions</h2>
 <p>The following function takes an input sequence of arbitrary length (<code>seed</code>), loads the relevant RNN models for a specified author (<code>author</code>), and generates a number additional characters (<code>steps</code>). It does so either by padding the input seed or via the bootstrapping method, according to the <code>bootstrap</code> parameter.</p>
